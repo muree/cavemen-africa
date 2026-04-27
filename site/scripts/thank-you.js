@@ -14,7 +14,7 @@
   if (!txRef) {
     if (statusRoot) {
       statusRoot.textContent =
-        "We could not read your payment reference in the URL. Check your email for your ticket, or contact admin@cavemen.africa.";
+        "We could not read your payment reference in the URL. Check your email for your ticket, or contact info@cavemen.africa.";
     }
     if (downloadRow) {
       downloadRow.hidden = true;

@@ -1,0 +1,19 @@
+# Rsync exclude list: paths are relative to the `site/` directory.
+# Use with: ./scripts/package-cpanel-php.sh   OR
+#   rsync -av --exclude-from=deploy/cpanel-site-excludes.txt site/ user@host:public_html/
+
+# Node.js stack (cPanel usually runs Apache + PHP APIs; PHP handles email + PDF)
+server.js
+lib/db-mysql.js
+lib/db-sqlite.js
+lib/asali-email.js
+lib/asali-ticket-pdf.js
+
+# Secrets — create a fresh .env on the server (cPanel env or File Manager), never upload a dev copy
+.env
+
+# Local SQLite if you use MySQL in production (saves space; optional)
+data/cavemen.db
+
+# macOS junk
+.DS_Store

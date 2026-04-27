@@ -1,11 +1,13 @@
 export const siteConfig = {
   name: "Cavemen Africa",
+  /** Header logo in /public — replace with your full wordmark PNG/WebP if needed. */
+  logoSrc: "/cavemen-logo.svg",
   legalName: "CAVEMEN IMPACT SOLUTIONS LTD",
   tagline: "Studio of Studios",
   description:
     "Cavemen is an innovative studio that offers a collaborative workforce for executing creative services including content creation.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://cavemen.africa",
-  contactEmail: "admin@cavemen.africa",
+  contactEmail: "info@cavemen.africa",
   phoneDisplay: "09134434065",
   phoneTel: "+2349134434065",
   addressLines: [

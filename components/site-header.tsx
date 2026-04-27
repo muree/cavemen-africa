@@ -10,9 +10,19 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/"
-          className="font-serif text-lg font-semibold tracking-tight text-[var(--color-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-terracotta)]"
+          className="flex items-center gap-2.5 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-terracotta)]"
         >
-          {siteConfig.name}
+          <img
+            src={siteConfig.logoSrc}
+            alt=""
+            width={40}
+            height={40}
+            className="h-9 w-9 shrink-0 object-contain"
+            decoding="async"
+          />
+          <span className="font-serif text-lg font-semibold tracking-tight text-[var(--color-ink)]">
+            {siteConfig.name}
+          </span>
         </Link>
         <nav aria-label="Primary" className="flex flex-wrap items-center gap-1 sm:gap-2">
           <Link href="/" className={navLinkClass}>

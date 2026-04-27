@@ -6,7 +6,8 @@
     "dev": "node site/server.js",
     "build": "node -e \"console.log('Static site is ready in ./site')\"",
     "start": "node site/server.js",
-    "lint": "node -e \"console.log('No lint step configured for the static frontend')\""
+    "lint": "node -e \"console.log('No lint step configured for the static frontend')\"",
+    "package:cpanel": "bash scripts/package-cpanel-php.sh"
   },
   "dependencies": {
     "mysql2": "^3.12.0",

@@ -681,7 +681,7 @@ function cavemen_handle_api_asali_registrations_post()
             $del = $pdo->prepare('DELETE FROM asali_registrations WHERE id = ?');
             $del->execute([$registrationId]);
             cavemen_json_response(502, [
-                'error' => 'Payment could not be started. Please try again in a moment or contact admin@cavemen.africa.',
+                'error' => 'Payment could not be started. Please try again in a moment or contact info@cavemen.africa.',
             ]);
             return;
         }

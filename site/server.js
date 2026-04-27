@@ -575,7 +575,7 @@ async function handleApi(request, response, url) {
         await db.deleteAsaliById(registrationId);
         sendJson(response, 502, {
           error:
-            "Payment could not be started. Please try again in a moment or contact admin@cavemen.africa.",
+            "Payment could not be started. Please try again in a moment or contact info@cavemen.africa.",
         });
         return true;
       }

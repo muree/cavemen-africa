@@ -1,0 +1,27 @@
+# When packaging from the repository root (not using the helper script),
+# exclude everything that is not the static/PHP site. Paths relative to repo root.
+
+.git/
+.cursor/
+node_modules/
+.next/
+out/
+build/
+coverage/
+.vercel/
+
+app/
+components/
+data/
+lib/
+eslint.config.mjs
+next.config.ts
+package.json
+package-lock.json
+postcss.config.*
+tailwind.config.*
+tsconfig.json
+*.md
+RagnaRunes*.otf
+
+# Only `site/` is uploaded; see deploy/cpanel-site-excludes.txt for trimming inside site/

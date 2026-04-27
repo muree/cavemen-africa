@@ -79,7 +79,7 @@ class AsaliEmailPhp
             </td>
           </tr>
         </table>
-        <p style=\"margin:16px 0 0;font-size:11px;color:#7a6f62;font-family:{$sans};text-align:center;max-width:480px;\">Payment confirmed. Questions? <span style=\"color:#9e4328;\">admin@cavemen.africa</span></p>
+        <p style=\"margin:16px 0 0;font-size:11px;color:#7a6f62;font-family:{$sans};text-align:center;max-width:480px;\">Payment confirmed. Questions? <span style=\"color:#9e4328;\">info@cavemen.africa</span></p>
       </td>
     </tr>
   </table>
@@ -99,7 +99,7 @@ class AsaliEmailPhp
             "{$attendanceType} · N{$amountNaira} (paid)",
             '',
             'No 2 Guda Abdullahi Road, Farm Center, Kano',
-            'admin@cavemen.africa',
+            'info@cavemen.africa',
         ];
         return implode("\n", $lines);
     }

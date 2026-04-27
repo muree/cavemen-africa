@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist-cpanel-php
 /site/data/cavemen.db
 /site/vendor
 
