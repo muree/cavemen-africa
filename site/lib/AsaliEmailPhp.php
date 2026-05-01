@@ -52,7 +52,7 @@ class AsaliEmailPhp
             <td style=\"background:#fefdfb;padding:24px 26px 6px 26px;\">
               <p style=\"margin:0 0 10px;font-size:16px;font-weight:600;color:#1c1915;font-family:{$sans};\">Hi {$safeName},</p>
               <p style=\"margin:0;font-size:15px;line-height:1.6;color:#4a443a;font-family:{$sans};\">
-                Your payment is in&mdash;you're on the list. The pass below is your code at the door. Keep this email; creative spaces work best when we show up for each other.
+                Your payment is in&mdash;you're on the list. The pass below is your code at the door. <strong>A PDF ticket is attached</strong> to this email for printing or showing on your phone. Keep this email; creative spaces work best when we show up for each other.
               </p>
             </td>
           </tr>
@@ -98,6 +98,8 @@ class AsaliEmailPhp
             "Your entry pass: {$ticketCode}",
             "{$attendanceType} · ₦{$amountNaira} (paid)",
             '',
+            'A PDF ticket is attached to this email.',
+            '',
             'No 2 Guda Abdullahi Road, Farm Center, Kano',
             'info@cavemen.africa',
         ];
@@ -105,9 +107,10 @@ class AsaliEmailPhp
     }
 
     /**
+     * @param array<string,string>|null $pdfAttachment keys: content (raw bytes), filename
      * @return bool true if sent
      */
-    public static function sendWithPhpMailer($to, $subject, $html, $text)
+    public static function sendWithPhpMailer($to, $subject, $html, $text, $pdfAttachment = null)
     {
         $autoload = dirname(__DIR__) . '/vendor/autoload.php';
         if (!is_readable($autoload)) {
@@ -142,6 +145,15 @@ class AsaliEmailPhp
             $mail->Subject = $subject;
             $mail->Body = $html;
             $mail->AltBody = $text;
+            if (is_array($pdfAttachment) && isset($pdfAttachment['content'], $pdfAttachment['filename'])) {
+                $fn = (string) $pdfAttachment['filename'];
+                $mail->addStringAttachment(
+                    (string) $pdfAttachment['content'],
+                    $fn !== '' ? $fn : 'ticket.pdf',
+                    \PHPMailer\PHPMailer\PHPMailer::ENCODING_BASE64,
+                    'application/pdf'
+                );
+            }
             $mail->send();
             return true;
         } catch (Throwable $e) {

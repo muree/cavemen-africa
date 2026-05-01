@@ -67,6 +67,15 @@ function cavemen_public_base_url()
     return $scheme . '://' . $host;
 }
 
+/**
+ * Ticket PDF URL for browsers. Uses cavemen-api.php (not /api/*) so it works when a host or CDN blocks /api/.
+ */
+function cavemen_public_ticket_pdf_url($txRef, $isDahk)
+{
+    $route = $isDahk ? 'dahk-ticket-pdf' : 'asali-ticket-pdf';
+    return '/cavemen-api.php?route=' . $route . '&tx_ref=' . rawurlencode((string) $txRef);
+}
+
 function cavemen_event_name()
 {
     return cavemen_env('ASALI_EVENT_NAME', 'Asali Poetry Sessions 9.0');
@@ -688,7 +697,34 @@ function cavemen_get_dahk_payment_links()
     return is_array($j) ? $j : ['DAHK Package' => ''];
 }
 
-function cavemen_send_ticket_email_php($registration, $eventOverride = null)
+/**
+ * @return array{content: string, filename: string}|null
+ */
+function cavemen_build_ticket_pdf_attachment(array $reg, $txRef, $isDahk)
+{
+    $autoload = cavemen_site_root() . '/vendor/autoload.php';
+    if (!is_readable($autoload)) {
+        return null;
+    }
+    require_once $autoload;
+    require_once cavemen_site_root() . '/lib/AsaliTicketPdfHtml.php';
+    $eventName = $isDahk ? cavemen_dahk_event_name() : cavemen_event_name();
+    $venue = $isDahk
+        ? cavemen_dahk_venue_line()
+        : cavemen_env('ASALI_VENUE_LINE', 'No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria');
+    $filename = $isDahk ? 'cavemen-dahk-seasons-ticket.pdf' : 'cavemen-asali-ticket.pdf';
+    $html = AsaliTicketPdfHtml::build($reg, $eventName, $venue, (string) $txRef);
+    $options = new \Dompdf\Options();
+    $options->set('isRemoteEnabled', false);
+    $options->set('isHtml5ParserEnabled', true);
+    $dompdf = new \Dompdf\Dompdf($options);
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    return ['content' => $dompdf->output(), 'filename' => $filename];
+}
+
+function cavemen_send_ticket_email_php($registration, $eventOverride = null, $txRef = null, $isDahk = null)
 {
     $event = $eventOverride !== null && $eventOverride !== '' ? (string) $eventOverride : cavemen_event_name();
     $html = AsaliEmailPhp::buildTicketEmailHtml(
@@ -706,7 +742,19 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null)
         $event
     );
     $subject = 'Your ticket — ' . $event;
-    return AsaliEmailPhp::sendWithPhpMailer($registration['email'], $subject, $html, $text);
+    $txForPdf = $txRef !== null && (string) $txRef !== '' ? (string) $txRef : (string) ($registration['txRef'] ?? '');
+    if ($isDahk === null && $txForPdf !== '') {
+        $isDahk = strpos($txForPdf, 'DAHK-') === 0;
+    }
+    $pdfAttach = null;
+    if ($txForPdf !== '' && !empty($registration['ticketCode']) && ($registration['paymentStatus'] ?? '') === 'paid') {
+        try {
+            $pdfAttach = cavemen_build_ticket_pdf_attachment($registration, $txForPdf, (bool) $isDahk);
+        } catch (Throwable $e) {
+            error_log('[cavemen] ticket PDF for email: ' . $e->getMessage());
+        }
+    }
+    return AsaliEmailPhp::sendWithPhpMailer($registration['email'], $subject, $html, $text, $pdfAttach);
 }
 
 function cavemen_handle_api_health()
@@ -1068,7 +1116,7 @@ function cavemen_handle_api_flutterwave_webhook()
     if (empty($reg['ticketEmailSentAt'])) {
         try {
             $eventNameForEmail = $table === 'dahk_seasons_registrations' ? cavemen_dahk_event_name() : cavemen_event_name();
-            $sent = cavemen_send_ticket_email_php($reg, $eventNameForEmail);
+            $sent = cavemen_send_ticket_email_php($reg, $eventNameForEmail, (string) $txRef, $table === 'dahk_seasons_registrations');
             if ($sent) {
                 $m = $pdo->prepare("UPDATE {$table} SET ticket_email_sent_at = CURRENT_TIMESTAMP WHERE id = ?");
                 $m->execute([$reg['id']]);
@@ -1104,8 +1152,7 @@ function cavemen_handle_registration_payment_status()
     $paid = $reg['paymentStatus'] === 'paid';
     $hasCode = !empty($reg['ticketCode']);
     $ticketReady = $paid && $hasCode;
-    $pdfPrefix = $isDahk ? '/api/dahk-ticket.pdf' : '/api/asali-ticket.pdf';
-    $pdf = $ticketReady ? $pdfPrefix . '?tx_ref=' . rawurlencode($txRef) : null;
+    $pdf = $ticketReady ? cavemen_public_ticket_pdf_url($txRef, $isDahk) : null;
     $eventName = $isDahk ? cavemen_dahk_event_name() : cavemen_event_name();
     cavemen_json_response(200, [
         'status' => $paid ? 'paid' : 'pending',
@@ -1150,34 +1197,19 @@ function cavemen_output_registration_ticket_pdf()
         ]);
         return;
     }
-    $autoload = cavemen_site_root() . '/vendor/autoload.php';
-    if (!is_readable($autoload)) {
+    $table = cavemen_registration_table_for_txref($txRef);
+    $isDahk = $table === 'dahk_seasons_registrations';
+    $built = cavemen_build_ticket_pdf_attachment($reg, $txRef, $isDahk);
+    if ($built === null) {
         cavemen_json_response(500, [
             'error' => 'PDF is not set up. Run: composer install in the site/ folder (requires dompdf).',
         ]);
         return;
     }
-    require_once $autoload;
-    require_once cavemen_site_root() . '/lib/AsaliTicketPdfHtml.php';
-    $table = cavemen_registration_table_for_txref($txRef);
-    $isDahk = $table === 'dahk_seasons_registrations';
-    $eventName = $isDahk ? cavemen_dahk_event_name() : cavemen_event_name();
-    $venue = $isDahk
-        ? cavemen_dahk_venue_line()
-        : cavemen_env('ASALI_VENUE_LINE', 'No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria');
-    $filename = $isDahk ? 'cavemen-dahk-seasons-ticket.pdf' : 'cavemen-asali-ticket.pdf';
-    $html = AsaliTicketPdfHtml::build($reg, $eventName, $venue, $txRef);
-    $options = new \Dompdf\Options();
-    $options->set('isRemoteEnabled', false);
-    $options->set('isHtml5ParserEnabled', true);
-    $dompdf = new \Dompdf\Dompdf($options);
-    $dompdf->loadHtml($html);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->render();
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $built['filename'] . '"');
     header('Cache-Control: no-store');
-    echo $dompdf->output();
+    echo $built['content'];
     exit;
 }
 

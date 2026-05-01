@@ -92,8 +92,8 @@ async function initKanti() {
   try {
     const endpoint =
       activeCategory === "all"
-        ? "/api/products"
-        : `/api/products?category=${encodeURIComponent(activeCategory)}`;
+        ? window.cavemenApiEndpoint("products")
+        : window.cavemenApiEndpoint("products", { category: activeCategory });
     const response = await fetch(endpoint);
     if (!response.ok) {
       throw new Error(`Failed to load products: ${response.status}`);

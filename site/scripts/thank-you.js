@@ -46,7 +46,8 @@
       downloadRow.hidden = false;
     }
     if (downloadLink) {
-      downloadLink.href = payload.pdfUrl || `/api/asali-ticket.pdf?tx_ref=${encodeURIComponent(txRef)}`;
+      downloadLink.href =
+        payload.pdfUrl || window.cavemenApiEndpoint("asali-ticket-pdf", { tx_ref: txRef });
     }
     if (pollNote) {
       pollNote.hidden = true;
@@ -62,7 +63,7 @@
       downloadRow.hidden = false;
     }
     if (downloadLink) {
-      downloadLink.href = `/api/asali-ticket.pdf?tx_ref=${encodeURIComponent(txRef)}`;
+      downloadLink.href = window.cavemenApiEndpoint("asali-ticket-pdf", { tx_ref: txRef });
     }
     if (pollNote) {
       pollNote.textContent = "If download fails, wait a few seconds and try again.";
@@ -72,7 +73,7 @@
   async function poll() {
     try {
       const res = await fetch(
-        `/api/asali-payment-status?tx_ref=${encodeURIComponent(txRef)}`,
+        window.cavemenApiEndpoint("asali-payment-status", { tx_ref: txRef }),
         { cache: "no-store" },
       );
       if (!res.ok) {

@@ -25,7 +25,7 @@ if (registrationForm && registrationStatus) {
     }
 
     try {
-      const response = await fetch("/api/asali-registrations", {
+      const response = await fetch(window.cavemenApiEndpoint("asali-registrations"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +41,15 @@ if (registrationForm && registrationStatus) {
         }),
       });
 
-      const payload = await response.json();
+      let payload;
+      try {
+        payload = await response.json();
+      } catch {
+        setStatus(
+          "The registration server returned an unexpected response. If testing locally, run `php -S localhost:8080 router.php` from the site/ folder, or open the site from your real hosting URL.",
+        );
+        return;
+      }
 
       if (!response.ok) {
         setStatus(payload.error || "Your registration could not be submitted right now.");

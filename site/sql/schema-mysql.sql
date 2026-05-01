@@ -1,5 +1,9 @@
 -- Cavemen Africa — MySQL schema (import in phpMyAdmin or run once)
 -- Charset: utf8mb4
+--
+-- DAHK: The Experience → table dahk_seasons_registrations
+-- Asali Poetry Sessions → table asali_registrations
+-- After import, set MYSQL_* in site/.env so PHP uses this database (not SQLite).
 
 CREATE TABLE IF NOT EXISTS kanti_products (
   id VARCHAR(64) NOT NULL PRIMARY KEY,
