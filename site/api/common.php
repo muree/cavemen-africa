@@ -776,18 +776,19 @@ function cavemen_handle_api_health()
 
 function cavemen_handle_api_products()
 {
-    $cat = null;
-    if (isset($_GET['category'])) {
-        $c = trim((string) $_GET['category']);
-        if ($c !== '' && $c !== 'all') {
-            $cat = $c;
+    try {
+        $cat = null;
+        if (isset($_GET['category'])) {
+            $c = trim((string) $_GET['category']);
+            if ($c !== '' && $c !== 'all') {
+                $cat = $c;
+            }
         }
-    }
-    $pdo = cavemen_pdo();
-    cavemen_seed_products($pdo);
-    $orderBy = cavemen_db_driver($pdo) === 'sqlite' ? 'ORDER BY title COLLATE NOCASE' : 'ORDER BY title';
-    if ($cat === null) {
-        $stmt = $pdo->query('
+        $pdo = cavemen_pdo();
+        cavemen_seed_products($pdo);
+        $orderBy = cavemen_db_driver($pdo) === 'sqlite' ? 'ORDER BY title COLLATE NOCASE' : 'ORDER BY title';
+        if ($cat === null) {
+            $stmt = $pdo->query('
         SELECT
           id,
           title,
@@ -799,8 +800,8 @@ function cavemen_handle_api_products()
         WHERE is_active = 1
         ' . $orderBy . '
     ');
-    } else {
-        $stmt = $pdo->prepare('
+        } else {
+            $stmt = $pdo->prepare('
         SELECT
           id,
           title,
@@ -812,10 +813,17 @@ function cavemen_handle_api_products()
         WHERE is_active = 1 AND category = :cat
         ' . $orderBy . '
     ');
-        $stmt->execute([':cat' => $cat]);
+            $stmt->execute([':cat' => $cat]);
+        }
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        cavemen_json_response(200, ['products' => $products]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] products API: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Catalog temporarily unavailable.',
+            'products' => [],
+        ]);
     }
-    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    cavemen_json_response(200, ['products' => $products]);
 }
 
 function cavemen_handle_api_asali_registrations_post()

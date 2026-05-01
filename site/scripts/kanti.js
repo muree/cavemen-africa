@@ -81,6 +81,37 @@ function renderProducts(products) {
   productRoot.append(grid);
 }
 
+function kantiStaticDataUrl() {
+  const root =
+    typeof window !== "undefined" && typeof window.cavemenSiteRoot === "string"
+      ? window.cavemenSiteRoot.replace(/\/$/, "")
+      : "";
+  return `${root}/data/kanti-products.json`;
+}
+
+async function fetchProductsFromApi() {
+  const endpoint =
+    activeCategory === "all"
+      ? window.cavemenApiEndpoint("products")
+      : window.cavemenApiEndpoint("products", { category: activeCategory });
+  const response = await fetch(endpoint);
+  if (!response.ok) {
+    throw new Error(`Failed to load products: ${response.status}`);
+  }
+  const payload = await response.json();
+  return payload.products || [];
+}
+
+/** Same catalog as PHP seeds from `data/kanti-products.json` — works when the API is unreachable. */
+async function fetchProductsFromStaticJson() {
+  const response = await fetch(kantiStaticDataUrl());
+  if (!response.ok) {
+    throw new Error(`Failed to load static catalog: ${response.status}`);
+  }
+  const products = await response.json();
+  return Array.isArray(products) ? products : [];
+}
+
 async function initKanti() {
   if (!categoryRoot || !productRoot) return;
 
@@ -90,17 +121,14 @@ async function initKanti() {
   }
 
   try {
-    const endpoint =
-      activeCategory === "all"
-        ? window.cavemenApiEndpoint("products")
-        : window.cavemenApiEndpoint("products", { category: activeCategory });
-    const response = await fetch(endpoint);
-    if (!response.ok) {
-      throw new Error(`Failed to load products: ${response.status}`);
+    let products;
+    try {
+      products = await fetchProductsFromApi();
+    } catch (apiError) {
+      console.warn("[Kanti] API catalog failed, using static JSON.", apiError);
+      products = await fetchProductsFromStaticJson();
     }
-
-    const payload = await response.json();
-    renderProducts(payload.products || []);
+    renderProducts(products);
   } catch (error) {
     productRoot.innerHTML = "";
     const failure = document.createElement("p");
