@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal · Cavemen Africa</title>
+    <meta
+      name="description"
+      content="Stories from Cavemen Africa on design, technology, and the lives we build around making — from Kano to the wider creative continent."
+    >
+    <meta property="og:title" content="Journal · Cavemen Africa">
+    <meta
+      property="og:description"
+      content="Stories from Cavemen Africa on design, technology, and the lives we build around making."
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cavemen.africa/articles/">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="icon" type="image/svg+xml" href="/assets/cavemen-icon.svg">
+    <link rel="apple-touch-icon" href="/assets/cavemen-icon.svg">
+    <link rel="stylesheet" href="/styles/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container site-header__inner">
+          <a class="brand-mark" href="/">
+            <img class="brand-logo" src="/assets/cavemen-icon.svg" alt="Cavemen Africa">
+          </a>
+          <nav class="site-nav" aria-label="Primary">
+            <a data-nav-link href="/">Home</a>
+            <a data-nav-link href="/asali/">Asali Poetry Sessions</a>
+            <a data-nav-link href="/dahk-seasons/">DAHK</a>
+            <a data-nav-link href="/kanti/">Kanti</a>
+            <a data-nav-link href="/articles/">Journal</a>
+          </nav>
+        </div>
+      </header>
+
+      <main id="main-content" class="site-main">
+        <section class="hero hero--articles">
+          <div class="container hero__inner">
+            <p class="eyebrow">Journal</p>
+            <h1 class="page-title">Articles</h1>
+            <p class="hero__lead">
+              Stories from the Cave &mdash; culture, community, and the work of building
+              a creative Africa.
+            </p>
+
+            <div class="articles-toolbar">
+              <label class="articles-search">
+                <span class="sr-only">Search articles</span>
+                <svg class="articles-search__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <circle cx="8.5" cy="8.5" r="5.75" stroke="currentColor" stroke-width="1.7"/>
+                  <path d="M13 13l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
+                <input
+                  class="text-input"
+                  type="search"
+                  name="q"
+                  placeholder="Search stories, authors, ideas&hellip;"
+                  autocomplete="off"
+                  data-articles-search
+                >
+              </label>
+              <div class="articles-filters" role="tablist" aria-label="Filter by category">
+                <button type="button" class="pill-link is-active" role="tab" aria-selected="true" data-articles-filter="all">All</button>
+                <button type="button" class="pill-link" role="tab" aria-selected="false" data-articles-filter="design">Design</button>
+                <button type="button" class="pill-link" role="tab" aria-selected="false" data-articles-filter="tech">Tech</button>
+                <button type="button" class="pill-link" role="tab" aria-selected="false" data-articles-filter="lifestyle">Lifestyle</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section section--tight" aria-labelledby="articles-results-title">
+          <div class="container">
+            <h2 class="sr-only" id="articles-results-title">All articles</h2>
+
+            <article
+              class="card article-featured"
+              id="the-weight-of-dreams"
+              data-article-card
+              data-category="lifestyle"
+              data-search="the weight of dreams cavemen africa asali campus tour abu zaria spoken word lifestyle king revelation"
+            >
+              <a class="article-featured__link" href="/articles/the-weight-of-dreams/">
+                <div class="article-featured__media article-featured__media--banner">
+                  <img
+                    src="https://res.cloudinary.com/kqhxqms3/image/upload/v1786630253/Asali_9.jpg"
+                    alt="Asali Campus Tour illustrated banner, with ABU Zaria marked on the route"
+                    width="1400"
+                    height="900"
+                  >
+                </div>
+                <div class="article-featured__body">
+                  <div class="article-card__meta">
+                    <span class="article-pill">Lifestyle</span>
+                    <span class="article-read">8 min read</span>
+                  </div>
+                  <p class="article-featured__label">Featured</p>
+                  <h3 class="article-featured__title">The Weight of Dreams: Cavemen Africa Debuts the Nation&rsquo;s First Structured Spoken Word Campus Tour</h3>
+                  <p class="article-card__snippet">On August 1st, 2026, the Asali Campus Tour debuted at ABU Zaria&rsquo;s Drama Village &mdash; the first structured spoken word campus tour in Nigeria.</p>
+                  <div class="article-card__author">
+                    <img
+                      class="article-card__avatar article-card__avatar--mark"
+                      src="/assets/cavemen-icon.svg"
+                      alt=""
+                      width="48"
+                      height="48"
+                    >
+                    <div>
+                      <p class="article-card__name">Cavemen Africa</p>
+                      <time class="article-card__date" datetime="2026-08-05">August 5, 2026</time>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </article>
+
+            <p class="empty-state" hidden data-articles-empty>
+              No stories match that search. Try another word, or clear the filters.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__top">
+          <div class="site-footer__grid">
+            <section>
+              <h3 class="brand-mark">Cavemen Africa</h3>
+              <p class="body-copy">Studio of Studios</p>
+              <p class="body-copy">Owned and operated by CAVEMEN IMPACT SOLUTIONS LTD.</p>
+            </section>
+            <section>
+              <h4>Explore</h4>
+              <ul class="site-footer__list">
+                <li><a href="/asali/">Asali Poetry Sessions</a></li>
+                <li><a href="/dahk-seasons/">DAHK</a></li>
+                <li><a href="/kanti/">Kanti marketplace</a></li>
+                <li><a href="/articles/">Journal</a></li>
+              </ul>
+            </section>
+            <section>
+              <h4>Contact</h4>
+              <ul class="site-footer__list">
+                <li><a href="tel:+2349134434065">09134434065</a></li>
+                <li><a href="mailto:info@cavemen.africa">info@cavemen.africa</a></li>
+                <li>No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria</li>
+              </ul>
+            </section>
+            <section>
+              <h4>Social</h4>
+              <ul class="site-footer__socials">
+                <li><a href="https://www.facebook.com/share/16CNzBvkPs/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                <li><a href="https://x.com/Cavemenafrica" target="_blank" rel="noopener noreferrer">X</a></li>
+                <li><a href="https://www.instagram.com/cavemenafrica" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                <li><a href="https://whatsapp.com/channel/0029Vb71e85KgsNyR43vd61J" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+                <li><a href="https://youtube.com/@cavemenafrica?si=_KkfyOYYurXxESDz" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+                <li><a href="https://tiktok.com/@cavemen.africa" target="_blank" rel="noopener noreferrer">TikTok</a></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+        <div class="container site-footer__bottom">
+          <p>&copy; <span data-current-year></span> Cavemen Africa. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+    <script src="/scripts/site.js"></script>
+    <script src="/scripts/articles.js"></script>
+  </body>
+</html>
