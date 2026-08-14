@@ -847,7 +847,9 @@ function cavemen_handle_api_asali_registrations_post()
                 cavemen_json_response(413, ['error' => 'Request body too large.']);
                 return;
             }
-            throw $e;
+            error_log('[cavemen] Asali registration request body: ' . $e->getMessage());
+            cavemen_json_response(400, ['error' => 'Could not read the registration request. Please try again.']);
+            return;
         }
         $payload = json_decode($raw ?: '[]', true);
         if (!is_array($payload)) {
@@ -932,6 +934,11 @@ function cavemen_handle_api_asali_registrations_post()
         cavemen_json_response(503, [
             'error' => 'Registration could not be saved. The database may be misconfigured (check MYSQL_* in .env and cPanel MySQL user privileges).',
         ]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] Asali registration error: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Registration could not be completed. Please try again in a moment or contact info@cavemen.africa.',
+        ]);
     }
 }
 
@@ -947,7 +954,9 @@ function cavemen_handle_api_dahk_registrations_post()
                 cavemen_json_response(413, ['error' => 'Request body too large.']);
                 return;
             }
-            throw $e;
+            error_log('[cavemen] DAHK registration request body: ' . $e->getMessage());
+            cavemen_json_response(400, ['error' => 'Could not read the registration request. Please try again.']);
+            return;
         }
         $payload = json_decode($raw ?: '[]', true);
         if (!is_array($payload)) {
@@ -1031,6 +1040,11 @@ function cavemen_handle_api_dahk_registrations_post()
         error_log('[cavemen] DAHK registration PDO error: ' . $e->getMessage());
         cavemen_json_response(503, [
             'error' => 'Registration could not be saved. The database may be misconfigured (check MYSQL_* in .env and cPanel MySQL user privileges).',
+        ]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] DAHK registration error: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Registration could not be completed. Please try again in a moment or contact info@cavemen.africa.',
         ]);
     }
 }
