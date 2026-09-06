@@ -3,5 +3,6 @@
     "gitlab": {
       "enabled": true
     }
-  }
+  },
+  "livePreview.serverRoot": "/site"
 }

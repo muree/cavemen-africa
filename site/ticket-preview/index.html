@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Ticket preview · Cavemen Africa</title>
+    <link rel="stylesheet" href="/styles/site.css" />
+    <style>
+      .preview-shell {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+      }
+      .preview-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 1.25rem 0 1.5rem;
+      }
+      .preview-frame {
+        width: 100%;
+        min-height: 640px;
+        border: 1px solid var(--color-border, #d4c9b5);
+        border-radius: 0.75rem;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-shell">
+      <p class="eyebrow">Local preview</p>
+      <h1>Event ticket preview</h1>
+      <p>
+        Sample horizontal entry pass with QR stub — same layout as the PDF emailed after
+        payment. Use this to review copy and design before going live.
+      </p>
+      <div class="preview-actions">
+        <a class="btn btn-primary" href="/cavemen-api.php?route=ticket-preview&amp;event=asali" target="_blank" rel="noopener noreferrer">
+          Open Asali ticket
+        </a>
+        <a class="btn btn-secondary" href="/cavemen-api.php?route=ticket-preview&amp;event=dahk" target="_blank" rel="noopener noreferrer">
+          Open DAHK ticket
+        </a>
+      </div>
+      <iframe
+        class="preview-frame"
+        title="Asali ticket preview"
+        src="/cavemen-api.php?route=ticket-preview&amp;event=asali"
+      ></iframe>
+    </div>
+  </body>
+</html>

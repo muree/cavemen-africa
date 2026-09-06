@@ -38,13 +38,17 @@ MYSQL_PASSWORD=your_database_password
 
 ## Local preview (optional)
 
-Serve the `site/` folder from inside `site/`. **Plain `php -S` does not apply `.htaccess`**, so API paths would 404 unless you use the router:
+The website lives in **`site/`**. Opening the repository root used to show a folder list (`deploy`, `site`, …). There is now a root `index.html` that sends you into `site/`.
+
+**Close the old preview tab**, then open `site/index.html` (or `/` again) so it is not still serving a cached directory listing.
+
+From the **repository root**:
 
 ```bash
-cd site && php -S localhost:8080 router.php
+npm run preview
 ```
 
-Then open `http://localhost:8080/dahk-seasons/register/` and submit the form.
+That runs `php -S 127.0.0.1:8080 router.php`. Open `http://127.0.0.1:8080/` (or `/dahk-seasons/register/`). **Plain `php -S` without this router does not apply `.htaccess`**, so API paths would 404.
 
 The browser calls **`/cavemen-api.php?route=…`** (not `/api/…`), which avoids many hosts or CDNs that intercept `/api/*` and respond with errors like **“API route not found.”** Ensure **`cavemen-api.php`** is uploaded next to `index.html` (same folder as `api/`).
 
@@ -53,6 +57,29 @@ The browser calls **`/cavemen-api.php?route=…`** (not `/api/…`), which avoid
 **Flutterwave webhook** (if you use it): set the URL to  
 `https://your-domain/cavemen-api.php?route=flutterwave-webhook`  
 (or keep `/api/webhooks/flutterwave.php` if that path works on your server).
+
+After a successful `charge.completed` / `charge.success`, the webhook verifies the `verif-hash` header against `FLUTTERWAVE_SECRET_HASH`, confirms the transaction with Flutterwave, issues a door code, and emails a gate pass (QR encoding the payment reference). Prefer **Resend**:
+
+```env
+RESEND_API_KEY=re_xxxxxxxx
+RESEND_FROM="Cavemen Africa <tickets@your-verified-domain>"
+```
+
+Smoke-test from `site/` (CLI only; not a public URL):
+
+```bash
+cd site && php bin/send-resend-test.php you@example.com
+```
+
+If Resend is unset or fails after retries, the same email is sent over existing `SMTP_*` settings. Optional event copy for tickets:
+
+```env
+ASALI_EVENT_WHEN=Saturday 12 September 2026 · 6:00 PM
+ASALI_VENUE_LINE=No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria
+ASALI_EVENT_FLIER_URL=https://cavemen.africa/path/to-asali-flier.jpg
+DAHK_SEASONS_EVENT_WHEN=Sunday 10 May 2026 · 3:00 PM – 6:00 PM
+DAHK_EVENT_FLIER_URL=https://cavemen.africa/assets/dahk-registration-banner.png
+```
 
 If the site is deployed in a **subdirectory** (e.g. `https://example.com/cavemen/`), set before `site.js` in your HTML:
 

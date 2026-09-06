@@ -2,54 +2,151 @@
 
 /**
  * HTML for PDF ticket (used with Dompdf on PHP / cPanel).
+ * Horizontal stub layout inspired by classic event tickets.
  */
 class AsaliTicketPdfHtml
 {
-    public static function build(array $reg, $eventName, $venueLine, $txRef)
+    private const QR_DISPLAY_PX = 210;
+
+    /**
+     * @param array<string,mixed> $reg
+     * @param array<string,mixed> $options eventWhen, seriesLabel, isDahk
+     */
+    public static function build(array $reg, $eventName, $venueLine, $txRef, $qrPng = null, array $options = [])
     {
         $name = self::e($reg['fullName'] ?? '');
-        $code = self::e($reg['ticketCode'] ?? '');
         $type = self::e($reg['attendanceType'] ?? '');
-        $amount = (int) ($reg['ticketPriceNaira'] ?? 0);
+        $amountNaira = (int) ($reg['ticketPriceNaira'] ?? 0);
+        $amount = self::e('₦' . number_format($amountNaira, 0, '.', ','));
         $event = self::e($eventName);
         $venue = self::e($venueLine);
         $ref = self::e($txRef);
+        $isDahk = !empty($options['isDahk']);
+        $series = self::e((string) ($options['seriesLabel'] ?? ($isDahk ? 'DAHK · THE EXPERIENCE' : 'ASALI · POETRY SESSIONS')));
+        $when = self::e((string) ($options['eventWhen'] ?? ''));
+
+        $qrBlock = '';
+        if (is_string($qrPng) && $qrPng !== '') {
+            $size = self::QR_DISPLAY_PX;
+            $qrBlock = '<table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr><td align="center" style="padding:8px 0 12px;">'
+                . '<div style="background:#ffffff;padding:10px;display:inline-block;">'
+                . '<img src="data:image/png;base64,' . base64_encode($qrPng) . '" width="' . $size . '" height="' . $size . '" alt="Gate QR" />'
+                . '</div></td></tr></table>';
+        }
 
         return '<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: DejaVu Sans, sans-serif; color: #1c1915; font-size: 10pt; margin: 0; padding: 28px; }
-    .h { background: #1e3d2f; color: #fefdfb; padding: 20px 24px; margin: -28px -28px 20px; }
-    .h small { color: #e8a090; font-size: 8pt; letter-spacing: 0.08em; }
-    h1 { font-size: 18pt; margin: 8px 0 0; }
-    .sub { color: rgba(246,241,232,0.95); font-size: 9pt; margin-top: 6px; font-style: italic; }
-    .box { background: #ebe3d2; border-left: 8px solid #c45c3e; padding: 16px 18px; margin: 16px 0; }
-    .code { font-family: DejaVu Sans Mono, monospace; font-size: 20pt; font-weight: 700; color: #1e3d2f; margin: 8px 0; letter-spacing: 0.04em; }
-    .pill { display: inline-block; background: #1e3d2f; color: #f6f1e8; padding: 6px 12px; border-radius: 20px; font-size: 10pt; font-weight: 700; margin-top: 8px; }
-    .foot { text-align: center; color: #4a443a; font-size: 8.5pt; margin-top: 20px; }
-    .ref { text-align: center; color: #9e4328; font-size: 8pt; margin-top: 8px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: DejaVu Sans, sans-serif;
+      color: #1a2744;
+      font-size: 9pt;
+      margin: 0;
+      padding: 18px;
+      background: #ffffff;
+    }
+    .ticket-wrap {
+      border: 2px solid #c9a962;
+      outline: 1px solid #c9a962;
+      outline-offset: 3px;
+    }
+    .label {
+      font-size: 6.5pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #b8956b;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+    .serif {
+      font-family: DejaVu Serif, serif;
+    }
+    .mono {
+      font-family: DejaVu Sans Mono, monospace;
+      letter-spacing: 0.04em;
+    }
+    .perforation {
+      width: 10px;
+      background: #f4efe4;
+      border-left: 2px dashed #8a96ab;
+      border-right: 2px dashed #8a96ab;
+    }
   </style>
 </head>
 <body>
-  <div class="h">
-    <div><small>CAVEMEN AFRICA · STUDIO OF STUDIOS · KANO</small></div>
-    <h1>' . $event . '</h1>
-    <p class="sub">Where raw voices rise — a creative space in Northern Nigeria.</p>
-  </div>
-  <p><strong>Hi ' . $name . ',</strong></p>
-  <p style="color:#4a443a;">Your entry pass. Show this PDF or quote your code at the door.</p>
-  <div class="box">
-    <div style="color:#9e4328;font-size:7.5pt;font-weight:bold;letter-spacing:0.12em;">ENTRY PASS</div>
-    <div style="color:#4a443a;font-size:9pt;margin-top:6px;">Code</div>
-    <div class="code">' . $code . '</div>
-    <div class="pill">' . $type . ' · ₦' . $amount . '</div>
-  </div>
-  <p class="foot">' . $venue . '</p>
-  <p class="ref">Reference: ' . $ref . '</p>
-  <p class="foot" style="font-style:italic;">Cavemen Africa · CAVEMEN IMPACT SOLUTIONS LTD</p>
+  <table class="ticket-wrap" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;background:#f4efe4;">
+    <tr>
+      <td width="70%" style="background:#f4efe4;padding:22px 24px 20px;vertical-align:top;border-right:none;">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+          <tr>
+            <td width="72%" style="vertical-align:top;padding-bottom:14px;">
+              <p style="font-size:7pt;letter-spacing:0.14em;text-transform:uppercase;color:#1a2744;font-weight:700;margin:0 0 2px;">Cavemen Africa</p>
+              <p style="font-size:6.5pt;letter-spacing:0.12em;text-transform:uppercase;color:#6b6358;margin:0;">Studio of Studios · Kano</p>
+            </td>
+            <td width="28%" align="right" style="vertical-align:top;">
+              <p class="label" style="margin:0 0 2px;">Admit</p>
+              <p class="serif" style="font-size:28pt;line-height:1;color:#1a2744;font-weight:700;margin:0;">01</p>
+            </td>
+          </tr>
+        </table>
+
+        <p class="label" style="margin:0 0 6px;">' . $series . '</p>
+        <h1 class="serif" style="font-size:22pt;line-height:1.15;color:#1a2744;font-weight:700;margin:0 0 16px;">' . $event . '</h1>
+
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:18px;">
+          <tr>
+            <td width="38%" style="vertical-align:top;padding-right:12px;">
+              <p class="label">Date</p>
+              <p class="serif" style="font-size:10.5pt;line-height:1.35;color:#1a2744;margin:0;">' . ($when !== '' ? $when : 'See event listing') . '</p>
+            </td>
+            <td width="62%" style="vertical-align:top;">
+              <p class="label">Location</p>
+              <p class="serif" style="font-size:10.5pt;line-height:1.35;color:#1a2744;margin:0;">' . $venue . '</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-top:1px solid #d9cdb8;padding-top:14px;">
+          <tr>
+            <td width="44%" style="vertical-align:top;padding-right:10px;">
+              <p class="label">Attendee</p>
+              <p class="serif" style="font-size:12pt;line-height:1.3;color:#1a2744;font-weight:700;margin:0;">' . $name . '</p>
+            </td>
+            <td width="28%" style="vertical-align:top;padding-right:10px;">
+              <p class="label">Ticket</p>
+              <p class="serif" style="font-size:11pt;line-height:1.3;color:#1a2744;font-weight:700;margin:0;">' . $type . '</p>
+            </td>
+            <td width="28%" style="vertical-align:top;">
+              <p class="label">Paid</p>
+              <p class="serif" style="font-size:16pt;line-height:1.1;color:#1a2744;font-weight:700;margin:0;">' . $amount . '</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:16px;border-top:1px solid #d9cdb8;padding-top:10px;">
+          <tr>
+            <td>
+              <p class="label">Reference</p>
+              <p class="mono" style="font-size:8.5pt;color:#4a5568;margin:0;">' . $ref . '</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+      <td class="perforation" style="width:10px;">&nbsp;</td>
+
+      <td width="30%" style="background:#1a2744;padding:18px 16px 14px;vertical-align:top;text-align:center;">
+        <p class="label" style="color:#c9a962;margin:0 0 4px;">Scan at entrance</p>
+        <p class="serif" style="font-size:11pt;line-height:1.2;color:#f4efe4;font-style:italic;margin:0 0 10px;">Present this ticket</p>
+        ' . $qrBlock . '
+        <p class="mono" style="font-size:6.5pt;color:#8a96ab;margin:8px 0 0;word-break:break-all;">' . $ref . '</p>
+      </td>
+    </tr>
+  </table>
+  <p style="text-align:center;font-size:7pt;color:#8a96ab;margin-top:12px;font-style:italic;">Cavemen Africa · CAVEMEN IMPACT SOLUTIONS LTD</p>
 </body>
 </html>';
     }

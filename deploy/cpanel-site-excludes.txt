@@ -1,11 +1,14 @@
 # Rsync exclude list: paths are relative to the `site/` directory.
-# Use with: npm run package:cpanel   OR   bash scripts/package-cpanel-php.sh
+# Use with: npm run package:cpanel   OR   bash deploy/package-cpanel-php.sh
 
 # Secrets — create a fresh .env on the server (cPanel env or File Manager), never upload a dev copy
 .env
 
 # Local SQLite if you use MySQL in production (saves space; optional)
 data/cavemen.db
+
+# Local CLI helpers (not needed on the public site)
+bin/
 
 # macOS junk
 .DS_Store

@@ -30,6 +30,8 @@ $map = [
     '/api/dahk-payment-status.php' => __DIR__ . '/api/dahk-payment-status.php',
     '/api/dahk-ticket.pdf' => __DIR__ . '/api/dahk-ticket-pdf.php',
     '/api/dahk-ticket-pdf.php' => __DIR__ . '/api/dahk-ticket-pdf.php',
+    '/api/ticket-preview' => __DIR__ . '/api/ticket-preview.php',
+    '/api/ticket-preview.php' => __DIR__ . '/api/ticket-preview.php',
     '/api/webhooks/flutterwave' => __DIR__ . '/api/webhooks/flutterwave.php',
 ];
 

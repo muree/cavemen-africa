@@ -13,6 +13,7 @@
  *   POST /cavemen-api.php?route=flutterwave-webhook       (Flutterwave raw body)
  *
  * PDF tickets:
+ *   GET /cavemen-api.php?route=ticket-preview              (&event=asali|dahk)
  *   GET /cavemen-api.php?route=dahk-ticket-pdf&tx_ref=…
  *   GET /cavemen-api.php?route=asali-ticket-pdf&tx_ref=…
  */
@@ -30,6 +31,7 @@ $map = [
     'dahk-registrations' => __DIR__ . '/api/dahk-registrations.php',
     'dahk-payment-status' => __DIR__ . '/api/dahk-payment-status.php',
     'dahk-ticket-pdf' => __DIR__ . '/api/dahk-ticket-pdf.php',
+    'ticket-preview' => __DIR__ . '/api/ticket-preview.php',
     'flutterwave-webhook' => __DIR__ . '/api/webhooks/flutterwave.php',
 ];
 

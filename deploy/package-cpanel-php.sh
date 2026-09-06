@@ -3,7 +3,7 @@
 #
 # From project root:
 #   npm run package:cpanel
-#   bash scripts/package-cpanel-php.sh
+#   bash deploy/package-cpanel-php.sh
 set -euo pipefail
 
 if ! command -v rsync >/dev/null 2>&1; then

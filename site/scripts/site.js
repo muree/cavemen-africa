@@ -44,7 +44,7 @@ for (const link of navLinks) {
   const href = link.getAttribute("href");
   if (!href) continue;
 
-  const normalized = href.replace(/\/$/, "") || "/";
+  const normalized = new URL(href, window.location.href).pathname.replace(/\/$/, "") || "/";
   const isSectionMatch =
     normalized !== "/" && currentPath.startsWith(`${normalized}/`);
 

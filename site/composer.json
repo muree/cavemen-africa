@@ -3,6 +3,7 @@
   "description": "cPanel PHP API for Cavemen static site (optional; run composer install in site/)",
   "require": {
     "php": ">=7.4",
+    "chillerlan/php-qrcode": "^4.3",
     "dompdf/dompdf": "^2.0",
     "phpmailer/phpmailer": "^6.9"
   },

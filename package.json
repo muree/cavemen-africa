@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "package:cpanel": "bash scripts/package-cpanel-php.sh"
+    "preview": "php -S 127.0.0.1:8080 router.php",
+    "package:cpanel": "bash deploy/package-cpanel-php.sh"
   }
 }
