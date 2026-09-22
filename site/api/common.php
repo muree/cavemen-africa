@@ -46,6 +46,8 @@ cavemen_load_dotenv();
 
 require_once __DIR__ . '/../lib/AsaliEmailPhp.php';
 require_once __DIR__ . '/../lib/CavemenTicketQr.php';
+require_once __DIR__ . '/../lib/CavemenTicketTier.php';
+require_once __DIR__ . '/../lib/CavemenShareCard.php';
 
 function cavemen_env($key, $default = null)
 {
@@ -79,7 +81,7 @@ function cavemen_public_ticket_pdf_url($txRef, $isDahk)
 
 function cavemen_event_name()
 {
-    return cavemen_env('ASALI_EVENT_NAME', 'Asali Poetry Sessions 9.0');
+    return cavemen_env('ASALI_EVENT_NAME', 'Asali Poetry Sessions Season II 1.0');
 }
 
 function cavemen_dahk_event_name()
@@ -793,6 +795,7 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null, $tx
         : ($isDahk ? cavemen_dahk_event_name() : cavemen_event_name());
     $pass = cavemen_ticket_pass_context($registration, $txForPdf, $isDahk, $charge);
     $qrPng = CavemenTicketQr::pngBytes($pass['txRef']);
+    $tier = CavemenTicketTier::forType($registration['attendanceType'] ?? '', $isDahk);
     $details = [
         'venue' => $pass['venue'],
         'when' => $pass['when'],
@@ -801,7 +804,13 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null, $tx
         'amountLabel' => $pass['amountLabel'],
         'qrCid' => 'cavemen-gate-qr',
         'hasQr' => $qrPng !== null,
+        'tier' => $tier,
+        'isDahk' => $isDahk,
     ];
+
+    $shareCards = cavemen_build_share_cards($registration, $pass, $event, $isDahk);
+    $details['shareCid'] = 'cavemen-share-card';
+    $details['hasShare'] = $shareCards !== [];
     $html = AsaliEmailPhp::buildTicketEmailHtml(
         $pass['fullName'],
         $registration['ticketCode'],
@@ -818,7 +827,9 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null, $tx
         $event,
         $details
     );
-    $subject = 'Your ticket — ' . $event;
+    $subject = $tier['key'] === 'standard'
+        ? 'Your ticket — ' . $event
+        : 'Your ' . $tier['label'] . ' ticket — ' . $event;
     $pdfAttach = null;
     if ($txForPdf !== '' && !empty($registration['ticketCode']) && ($registration['paymentStatus'] ?? '') === 'paid') {
         try {
@@ -831,9 +842,22 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null, $tx
         ? ['content' => $qrPng, 'filename' => 'gate-pass.png', 'cid' => 'cavemen-gate-qr']
         : null;
 
+    $template = [
+        'id' => AsaliEmailPhp::ticketTemplateAlias(),
+        'variables' => AsaliEmailPhp::ticketTemplateValues(
+            $pass['fullName'],
+            $registration['ticketCode'],
+            $registration['attendanceType'],
+            $registration['ticketPriceNaira'],
+            $event,
+            $details
+        ),
+    ];
+
     $hasResend = (string) cavemen_env('RESEND_API_KEY', '') !== '';
     for ($attempt = 0; $attempt < 3; $attempt++) {
-        if ($hasResend && AsaliEmailPhp::sendWithResend($registration['email'], $subject, $html, $text, $pdfAttach, $qrAttach)) {
+        $tpl = $attempt === 0 ? $template : null;
+        if ($hasResend && AsaliEmailPhp::sendWithResend($registration['email'], $subject, $html, $text, $pdfAttach, $qrAttach, $shareCards, $tpl)) {
             return true;
         }
         if ($attempt < 2) {
@@ -841,7 +865,56 @@ function cavemen_send_ticket_email_php($registration, $eventOverride = null, $tx
         }
     }
 
-    return AsaliEmailPhp::sendWithPhpMailer($registration['email'], $subject, $html, $text, $pdfAttach, $qrAttach);
+    return AsaliEmailPhp::sendWithPhpMailer($registration['email'], $subject, $html, $text, $pdfAttach, $qrAttach, $shareCards);
+}
+
+/**
+ * Shareable "I'm going" PNGs: a square card for feeds and a tall one for stories.
+ *
+ * @param array<string,mixed> $registration
+ * @param array<string,mixed> $pass
+ * @return array<int,array{content:string,filename:string,cid?:string}>
+ */
+function cavemen_build_share_cards(array $registration, array $pass, $event, $isDahk)
+{
+    $ctx = [
+        'name' => $pass['fullName'],
+        'attendanceType' => $registration['attendanceType'] ?? '',
+        'isDahk' => $isDahk,
+        'eventName' => $event,
+        'seriesLabel' => $isDahk ? 'DAHK · The Experience' : 'Asali · Poetry Sessions',
+        'when' => $pass['when'],
+        'venue' => cavemen_share_venue_line($pass['venue']),
+    ];
+
+    $cards = [];
+    try {
+        $square = CavemenShareCard::pngBytes($ctx, 'square');
+        if ($square !== null) {
+            $cards[] = ['content' => $square, 'filename' => 'cavemen-share-card.png', 'cid' => 'cavemen-share-card'];
+        }
+        $story = CavemenShareCard::pngBytes($ctx, 'story');
+        if ($story !== null) {
+            $cards[] = ['content' => $story, 'filename' => 'cavemen-share-story.png'];
+        }
+    } catch (Throwable $e) {
+        error_log('[cavemen] share card: ' . $e->getMessage());
+    }
+
+    return $cards;
+}
+
+/**
+ * The full postal address is too long for a card; keep the venue and the city.
+ */
+function cavemen_share_venue_line($venue)
+{
+    $parts = array_values(array_filter(array_map('trim', explode(',', (string) $venue))));
+    if (count($parts) <= 2) {
+        return 'Cavemen Africa · ' . implode(', ', $parts);
+    }
+
+    return 'Cavemen Africa · ' . $parts[count($parts) - 3] . ', ' . $parts[count($parts) - 2];
 }
 
 /**

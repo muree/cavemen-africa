@@ -1348,6 +1348,81 @@ code {
   box-shadow: 0 2px 8px rgba(30, 61, 47, 0.25);
 }
 
+.ticket-tier-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.ticket-tier {
+  position: relative;
+  display: block;
+}
+
+.ticket-tier input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ticket-tier__body {
+  display: grid;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 1.05rem 1.15rem 1.15rem;
+  border: 1.5px solid var(--color-border);
+  border-left: 6px solid var(--tier-accent);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.78);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ticket-tier--performer {
+  --tier-accent: #c9a962;
+  --tier-ink: #3a1712;
+}
+
+.ticket-tier--audience {
+  --tier-accent: #5f8d74;
+  --tier-ink: #1a2744;
+}
+
+.ticket-tier__badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tier-ink);
+}
+
+.ticket-tier__name {
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ticket-tier__price {
+  font-weight: 700;
+  color: var(--tier-ink);
+}
+
+.ticket-tier__copy {
+  color: var(--color-ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ticket-tier:focus-within .ticket-tier__body {
+  box-shadow: 0 0 0 3px rgba(30, 61, 47, 0.18);
+}
+
+.ticket-tier input:checked + .ticket-tier__body {
+  border-color: var(--tier-accent);
+  background: var(--color-white);
+  box-shadow: 0 6px 18px -8px rgba(28, 25, 21, 0.4);
+}
+
 .status-card {
   display: none;
   padding: 1rem 1.1rem;

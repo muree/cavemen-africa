@@ -5,8 +5,7 @@
  *
  *   php bin/send-resend-test.php you@example.com
  *
- * Requires RESEND_API_KEY in site/.env. Unverified accounts can send from
- * beth.t@example.com to the address on the Resend account.
+ * Uses the published Resend ticket template (alias cavemen-ticket).
  */
 declare(strict_types=1);
 
@@ -33,56 +32,19 @@ $txRef = 'TEST-' . gmdate('YmdHis');
 $reg = [
     'fullName' => 'Resend Test',
     'ticketCode' => 'CAVE-TEST',
-    'attendanceType' => 'General',
+    'attendanceType' => 'Performer',
     'ticketPriceNaira' => 5000,
     'email' => $to,
     'txRef' => $txRef,
     'paymentStatus' => 'paid',
 ];
-$event = cavemen_event_name();
-$pass = cavemen_ticket_pass_context($reg, $txRef, false, []);
-$qrPng = CavemenTicketQr::pngBytes($pass['txRef']);
-$details = [
-    'venue' => $pass['venue'],
-    'when' => $pass['when'],
-    'txRef' => $pass['txRef'],
-    'flierUrl' => $pass['flierUrl'],
-    'amountLabel' => $pass['amountLabel'],
-    'qrCid' => 'cavemen-gate-qr',
-    'hasQr' => $qrPng !== null,
-];
-$html = AsaliEmailPhp::buildTicketEmailHtml(
-    $pass['fullName'],
-    $reg['ticketCode'],
-    $reg['attendanceType'],
-    $reg['ticketPriceNaira'],
-    $event,
-    $details
-);
-$text = AsaliEmailPhp::buildTicketEmailText(
-    $pass['fullName'],
-    $reg['ticketCode'],
-    $reg['attendanceType'],
-    $reg['ticketPriceNaira'],
-    $event,
-    $details
-);
-$qrAttach = $qrPng !== null
-    ? ['content' => $qrPng, 'filename' => 'gate-pass.png', 'cid' => 'cavemen-gate-qr']
-    : null;
 
-$ok = AsaliEmailPhp::sendWithResend(
-    $to,
-    'Cavemen test — gate pass (Resend)',
-    $html,
-    $text,
-    null,
-    $qrAttach
-);
+$ok = cavemen_send_ticket_email_php($reg, cavemen_event_name(), $txRef, false);
 if (!$ok) {
-    fwrite(STDERR, "Resend send failed. Check PHP error log for [cavemen] Resend.\n");
+    fwrite(STDERR, "Resend send failed. Publish the template first:\n");
+    fwrite(STDERR, "  php bin/publish-resend-ticket-template.php\n");
     exit(1);
 }
 
-echo "Sent test ticket email to {$to} (ref {$txRef})\n";
+echo "Sent templated ticket email to {$to} (ref {$txRef})\n";
 exit(0);

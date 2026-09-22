@@ -63,6 +63,13 @@ After a successful `charge.completed` / `charge.success`, the webhook verifies t
 ```env
 RESEND_API_KEY=re_xxxxxxxx
 RESEND_FROM="Cavemen Africa <tickets@your-verified-domain>"
+RESEND_TICKET_TEMPLATE=cavemen-ticket
+```
+
+Create/update and **publish** the ticket template (required once, and again after HTML changes):
+
+```bash
+cd site && php bin/publish-resend-ticket-template.php
 ```
 
 Smoke-test from `site/` (CLI only; not a public URL):
