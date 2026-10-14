@@ -1,6 +1,8 @@
 # cavemen-africa
 
-Static site and **PHP APIs** for shared hosting (cPanel + Apache). There is no Node.js backend in this tree.
+Static site and PHP APIs for Cavemen Africa ([cavemen.africa](https://cavemen.africa)), hosted on cPanel. There is no Node.js backend.
+
+**Handbook (pages, payments, env, Cloudinary, deploy):** [docs/SITE.md](docs/SITE.md)
 
 ## Deploy to cPanel
 
