@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout · Kanti · Cavemen Africa</title>
+    <!-- Google Fonts Imports: Montserrat (primary body) & Cinzel Decorative (runic style headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom Style definitions -->
+        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/site.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+        <div class="container site-header__inner">
+          <a class="brand-mark" href="../../">
+            <img class="brand-logo" src="../../assets/cavemen-icon.svg" alt="Cavemen Africa">
+          </a>
+          <nav class="site-nav" aria-label="Primary">
+            <a data-nav-link href="../../">Home</a>
+            <a data-nav-link href="../../asali/">Asali Poetry Sessions</a>
+            <a data-nav-link href="../../dahk-seasons/">DAHK</a>
+            <a data-nav-link href="../../kanti/">Kanti</a>
+            <a data-nav-link href="../../articles/">Journal</a>
+            <a data-nav-link href="../../tatsuniya/">Tatsuniya</a>
+          </nav>
+        </div>
+      </header>
+    <main class="main-content">
+
+<section class="container" style="margin-top: 50px;">
+    <div class="checkout-grid">
+        <!-- Delivery info -->
+        <div class="form-box">
+            <h2 class="form-title">Delivery Information</h2>
+            <p class="form-sub">Your order will be packaged manually with custom physical scent cards</p>
+
+            <form id="kanti-checkout" data-kanti-checkout-form novalidate>
+                <!-- Keep hidden tracking details -->
+                <input type="hidden" name="product_type" value="book" id="product-type">
+                <input type="hidden" name="selected_scent" value="bloom" id="selected-scent">
+                <input type="hidden" id="unit-price" name="unit_price" value="20000">
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="fullName" class="form-control" placeholder="e.g. Salamatu Mohammed" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="salamatu@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="e.g. +234 803 123 4567" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Delivery Address</label>
+                    <input type="text" name="address" class="form-control" placeholder="Street Address, Apartment, block" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" class="form-control" placeholder="e.g. Zaria" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State / Region</label>
+                        <input type="text" name="state" class="form-control" placeholder="e.g. Kaduna State" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Order request notes (optional)</label>
+                    <textarea name="notes" class="form-control" rows="3" placeholder="Notes regarding packaging, custom signatures, delivery hours..." style="resize: none;"></textarea>
+                </div>
+
+                <p class="status-card" data-checkout-status></p>
+                <div class="form-group" style="margin-top: 35px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center; padding: 16px 20px;">Proceed to Secure Checkout</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Billing summary -->
+        <div>
+            <div class="summary-box">
+                <h3 class="summary-heading">Order Summary</h3>
+                
+                <div style="margin-bottom: 25px;">
+                    <span class="label-cap" style="font-size:9px; margin-bottom:5px;">Selected Item</span>
+                   <h4 style="font-size: 1.15rem; color: var(--color-charcoal); font-family: var(--font-body); font-weight:600;" id="summary-title">Diary of a Heartbreak Kid (DAHK)</h4>
+                    <p style="font-size: 12px; color:rgba(0, 0, 0, 0.4); margin-top:3px;" id="summary-detail">By Salamatu Adamu • Hardcover Anthology</p>
+                </div>
+
+                <!-- Quantity form indicator linking JS listener -->
+                <div class="summary-item" style="border-top:1px solid var(--color-charcoal); border-bottom:1px solid var(--color-charcoal); padding: 15px 0;">
+                    <span style="color:rgba(0, 0, 0, 0.6);">Quantity</span>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <!-- Linking dynamic input trigger -->
+                        <input type="number" id="order-quantity" name="quantity" form="kanti-checkout" value="1" min="1" max="25" class="form-control" style="width:70px; padding:6px 12px; text-align:center; background-color:var(--white); border:1px solid #44382e;">
+                    </div>
+                </div>
+
+                <div class="summary-item" style="margin-top: 20px;">
+                    <span>Subtotal</span>
+                    <span id="order-subtotal">₦20,000</span>
+                </div>
+                <div class="summary-item">
+                    <span>Standard Shipping</span>
+                    <span style="color:var(--color-ochre); font-weight:bold;">will be calculated at checkout</span>
+                </div>
+                <div class="summary-item">
+                    <span>VAT</span>
+                    <span>₦0</span>
+                </div>
+
+                <div class="summary-item summary-item-total">
+                    <span>Total Amount</span>
+                    <span id="order-grand-total">₦20,000</span>
+                </div>
+
+                <div style="background-color: var(--color-charcoal); border-radius: 8px; padding: 20px; font-size:11px; line-height: 1.6; color:rgba(243, 236, 224, 0.4); margin-top: 30px; border: 1px solid rgba(255,255,255,0.02)">
+                    <p style="font-weight:bold; color:var(--color-ochre); margin-bottom:5px; font-family:var(--font-body);">Secure Gateway Info:</p>
+                    <p style="color:var(--white);">Clicking proceed will register your delivery coordinates locally on your cPanel database structure and safe-forward the exact basket totals directly to your Flutterwave checkout interface.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    </main> <!-- End main-content -->
+    
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-column col-span-2">
+                <h3 class="footer-brand">KANTI BY CAVEMEN AFRICA</h3>
+                <p class="footer-desc">
+        Kanti is the Hausa word for a shop or market where people gather to exchange or buy valuables. 
+        At Cavemen Africa, it is more than a store — it is the home for the things we create, preserve, and share. 
+        It houses the creations of the Cavemen Africa ecosystem, where ideas become physical and accessible to people.
+         In its simplest form, it is a shop; in practice, it is a living archive of our work, stories, and creations.
+                </p>
+                <p class="footer-meta">Kanti is the Hausa word for “shop” - a place of exchange</p>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-heading">COLLECTIONS</h4>
+                <ul class="footer-links">
+                    <li><a href="../dahk-book/">Diary of a Heartbreak Kid (Book)</a></li>
+                    <li><a href="../dahk-vials/">DAHK Vials (Scents)</a></li>
+                    <li><a href="../wuri/">Wuri by Cavemen </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Cavemen Africa. Developed for Kanti </p>
+            <div class="bottom-badges">
+                <span>KANTI v2.0</span>
+            </div>
+        </div>
+    </footer>
+   <script src="../assets/js/purchase.js"></script>
+   <script src="../assets/js/scripts.js"></script>
+    <script src="../../scripts/site.js"></script>
+    <script src="../../scripts/kanti-checkout.js"></script>
+</body>
+</html>

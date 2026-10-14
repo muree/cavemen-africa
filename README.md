@@ -58,7 +58,17 @@ The browser calls **`/cavemen-api.php?route=…`** (not `/api/…`), which avoid
 `https://your-domain/cavemen-api.php?route=flutterwave-webhook`  
 (or keep `/api/webhooks/flutterwave.php` if that path works on your server).
 
-After a successful `charge.completed` / `charge.success`, the webhook verifies the `verif-hash` header against `FLUTTERWAVE_SECRET_HASH`, confirms the transaction with Flutterwave, issues a door code, and emails a gate pass (QR encoding the payment reference). Prefer **Resend**:
+Checkout for **Asali**, **DAHK**, **Tatsuniya**, and **Kanti** all use the **same Flutterwave v4 live keys** in `site/.env` (never commit this file):
+
+```env
+FLUTTERWAVE_CLIENT_ID=your-v4-client-id
+FLUTTERWAVE_CLIENT_SECRET=your-v4-client-secret
+FLUTTERWAVE_ENCRYPTION_KEY=your-v4-encryption-key
+FLUTTERWAVE_SECRET_HASH=your-webhook-secret
+FLUTTERWAVE_ENVIRONMENT=live
+```
+
+Those are the three values from **Settings → API Keys → v4 Live** (Client ID, Client Secret, Encryption Key). The site exchanges Client ID + Client Secret for an OAuth token, then opens a Flutterwave hosted checkout session. The encryption key stays on the server only. `FLUTTERWAVE_SECRET_HASH` is a secret you choose for webhooks (HMAC `flutterwave-signature`), not the encryption key — set the webhook URL to `https://your-domain/cavemen-api.php?route=flutterwave-webhook`. Optional v3 `FLUTTERWAVE_SECRET_KEY` / `FLUTTERWAVE_PUBLIC_KEY` remain as a fallback. Dashboard links in `site/data/*-payment-links.json` are last-resort. After `charge.completed`, the webhook verifies the charge and emails a ticket (Asali/DAHK) or an order/workshop confirmation (Kanti/Tatsuniya). Prefer **Resend**:
 
 ```env
 RESEND_API_KEY=re_xxxxxxxx

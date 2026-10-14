@@ -19,5 +19,10 @@
   RewriteRule ^api/dahk-registrations$ api/dahk-registrations.php [L,QSA]
   RewriteRule ^api/dahk-payment-status$ api/dahk-payment-status.php [L,QSA]
   RewriteRule ^api/dahk-ticket\.pdf$ api/dahk-ticket-pdf.php [L,QSA]
+  RewriteRule ^api/tatsuniya-registrations$ api/tatsuniya-registrations.php [L,QSA]
+  RewriteRule ^api/tatsuniya-payment-status$ api/tatsuniya-payment-status.php [L,QSA]
+  RewriteRule ^api/kanti-orders$ api/kanti-orders.php [L,QSA]
+  RewriteRule ^api/kanti-payment-status$ api/kanti-payment-status.php [L,QSA]
+  RewriteRule ^api/hosted-pay$ api/hosted-pay.php [L,QSA]
   RewriteRule ^api/webhooks/flutterwave$ api/webhooks/flutterwave.php [L,QSA]
 </IfModule>

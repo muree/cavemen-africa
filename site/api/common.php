@@ -45,6 +45,7 @@ function cavemen_load_dotenv()
 cavemen_load_dotenv();
 
 require_once __DIR__ . '/../lib/AsaliEmailPhp.php';
+require_once __DIR__ . '/../lib/CavemenCheckoutEmail.php';
 require_once __DIR__ . '/../lib/CavemenTicketQr.php';
 require_once __DIR__ . '/../lib/CavemenTicketTier.php';
 require_once __DIR__ . '/../lib/CavemenShareCard.php';
@@ -56,6 +57,57 @@ function cavemen_env($key, $default = null)
         return $v;
     }
     return $default;
+}
+
+function cavemen_flutterwave_secret_key()
+{
+    return (string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '');
+}
+
+function cavemen_flutterwave_public_key()
+{
+    return (string) cavemen_env('FLUTTERWAVE_PUBLIC_KEY', '');
+}
+
+function cavemen_flutterwave_encryption_key()
+{
+    return (string) cavemen_env('FLUTTERWAVE_ENCRYPTION_KEY', '');
+}
+
+function cavemen_flutterwave_client_id()
+{
+    $v = (string) cavemen_env('FLUTTERWAVE_CLIENT_ID', '');
+    if ($v !== '') {
+        return $v;
+    }
+    return (string) cavemen_env('FLW_CLIENT_ID', '');
+}
+
+function cavemen_flutterwave_client_secret()
+{
+    $v = (string) cavemen_env('FLUTTERWAVE_CLIENT_SECRET', '');
+    if ($v !== '') {
+        return $v;
+    }
+    return (string) cavemen_env('FLW_CLIENT_SECRET', '');
+}
+
+function cavemen_flutterwave_uses_v4()
+{
+    return cavemen_flutterwave_client_id() !== '' && cavemen_flutterwave_client_secret() !== '';
+}
+
+function cavemen_flutterwave_base_url()
+{
+    $override = (string) cavemen_env('FLUTTERWAVE_BASE_URL', '');
+    if ($override !== '') {
+        return rtrim($override, '/');
+    }
+    $env = strtolower((string) cavemen_env('FLUTTERWAVE_ENVIRONMENT', 'live'));
+    if ($env === 'sandbox' || $env === 'test') {
+        return 'https://developersandbox-api.flutterwave.com';
+    }
+    return 'https://f4bexperience.flutterwave.com';
 }
 
 function cavemen_public_base_url()
@@ -82,6 +134,16 @@ function cavemen_public_ticket_pdf_url($txRef, $isDahk)
 function cavemen_event_name()
 {
     return cavemen_env('ASALI_EVENT_NAME', 'Asali Poetry Sessions Season II 1.0');
+}
+
+function cavemen_tatsuniya_event_name()
+{
+    return cavemen_env('TATSUNIYA_EVENT_NAME', 'Tatsuniya Creative Workshop');
+}
+
+function cavemen_tatsuniya_fee_naira()
+{
+    return (int) cavemen_env('TATSUNIYA_FEE_NAIRA', '15000');
 }
 
 function cavemen_dahk_event_name()
@@ -278,6 +340,54 @@ CREATE TABLE IF NOT EXISTS dahk_seasons_registrations (
   KEY idx_dahk_email (email(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ');
+    $pdo->exec('
+CREATE TABLE IF NOT EXISTS tatsuniya_registrations (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  child_name VARCHAR(255) NOT NULL,
+  child_age TINYINT UNSIGNED NOT NULL,
+  child_school VARCHAR(255) NULL,
+  parent_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  discovery VARCHAR(512) NOT NULL,
+  medical TEXT NULL,
+  notes TEXT NULL,
+  ticket_price_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  payment_status VARCHAR(24) NOT NULL DEFAULT \'pending\',
+  tx_ref VARCHAR(128) NULL,
+  ticket_code VARCHAR(64) NULL,
+  flutterwave_transaction_id VARCHAR(128) NULL,
+  ticket_email_sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_tats_tx_ref (tx_ref),
+  KEY idx_tats_email (email(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+');
+    $pdo->exec('
+CREATE TABLE IF NOT EXISTS kanti_orders (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  address VARCHAR(512) NOT NULL,
+  city VARCHAR(128) NOT NULL,
+  state VARCHAR(128) NOT NULL,
+  product_type VARCHAR(64) NOT NULL,
+  selected_scent VARCHAR(64) NULL,
+  product_title VARCHAR(512) NOT NULL,
+  quantity INT UNSIGNED NOT NULL DEFAULT 1,
+  unit_price_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  total_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  notes TEXT NULL,
+  payment_status VARCHAR(24) NOT NULL DEFAULT \'pending\',
+  tx_ref VARCHAR(128) NULL,
+  flutterwave_transaction_id VARCHAR(128) NULL,
+  confirmation_email_sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_kanti_tx_ref (tx_ref),
+  KEY idx_kanti_email (email(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+');
 }
 
 function cavemen_init_db_sqlite(PDO $pdo)
@@ -322,6 +432,48 @@ function cavemen_init_db_sqlite(PDO $pdo)
     ticket_code TEXT,
     flutterwave_transaction_id TEXT,
     ticket_email_sent_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS tatsuniya_registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    child_name TEXT NOT NULL,
+    child_age INTEGER NOT NULL,
+    child_school TEXT,
+    parent_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    discovery TEXT NOT NULL,
+    medical TEXT,
+    notes TEXT,
+    ticket_price_naira INTEGER NOT NULL DEFAULT 0,
+    payment_status TEXT NOT NULL DEFAULT \'pending\',
+    tx_ref TEXT,
+    ticket_code TEXT,
+    flutterwave_transaction_id TEXT,
+    ticket_email_sent_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS kanti_orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    address TEXT NOT NULL,
+    city TEXT NOT NULL,
+    state TEXT NOT NULL,
+    product_type TEXT NOT NULL,
+    selected_scent TEXT,
+    product_title TEXT NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price_naira INTEGER NOT NULL DEFAULT 0,
+    total_naira INTEGER NOT NULL DEFAULT 0,
+    notes TEXT,
+    payment_status TEXT NOT NULL DEFAULT \'pending\',
+    tx_ref TEXT,
+    flutterwave_transaction_id TEXT,
+    confirmation_email_sent_at TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 ');
@@ -487,6 +639,115 @@ function cavemen_validate_dahk_registration($payload)
     ];
 }
 
+function cavemen_validate_tatsuniya_registration($payload)
+{
+    if (!is_array($payload)) {
+        $payload = [];
+    }
+    $childName = trim((string) ($payload['childName'] ?? ''));
+    $childAgeRaw = trim((string) ($payload['childAge'] ?? ''));
+    $childSchool = cavemen_normalize_optional($payload['childSchool'] ?? '');
+    $parentName = trim((string) ($payload['parentName'] ?? ''));
+    $phone = trim((string) ($payload['phone'] ?? ''));
+    $email = trim((string) ($payload['email'] ?? ''));
+    $discovery = trim((string) ($payload['discovery'] ?? ''));
+    $medical = cavemen_normalize_optional($payload['medical'] ?? '');
+    $notes = cavemen_normalize_optional($payload['notes'] ?? '');
+    $age = (int) $childAgeRaw;
+
+    if ($childName === '' || $childAgeRaw === '' || $parentName === '' || $phone === '' || $email === '' || $discovery === '') {
+        return ['error' => 'Please complete all required fields.'];
+    }
+    if (strpos($email, '@') === false) {
+        return ['error' => 'Please enter a valid parent or guardian email address.'];
+    }
+    if ($age < 8 || $age > 15) {
+        return ['error' => 'Tatsuniya is open to children between 8 and 15 years old.'];
+    }
+
+    return [
+        'data' => [
+            'childName' => $childName,
+            'childAge' => $age,
+            'childSchool' => $childSchool,
+            'parentName' => $parentName,
+            'phone' => $phone,
+            'email' => $email,
+            'discovery' => $discovery,
+            'medical' => $medical,
+            'notes' => $notes,
+            'ticketPriceNaira' => cavemen_tatsuniya_fee_naira(),
+        ],
+    ];
+}
+
+function cavemen_validate_kanti_order($payload)
+{
+    if (!is_array($payload)) {
+        $payload = [];
+    }
+    $fullName = trim((string) ($payload['fullName'] ?? ''));
+    $phone = trim((string) ($payload['phone'] ?? ''));
+    $email = trim((string) ($payload['email'] ?? ''));
+    $address = trim((string) ($payload['address'] ?? ''));
+    $city = trim((string) ($payload['city'] ?? ''));
+    $state = trim((string) ($payload['state'] ?? ''));
+    $productType = trim((string) ($payload['productType'] ?? $payload['product_type'] ?? ''));
+    $scentId = strtolower(trim((string) ($payload['selectedScent'] ?? $payload['selected_scent'] ?? '')));
+    $notes = cavemen_normalize_optional($payload['notes'] ?? '');
+    $quantity = (int) ($payload['quantity'] ?? 1);
+
+    if ($fullName === '' || $phone === '' || $email === '' || $address === '' || $city === '' || $state === '' || $productType === '') {
+        return ['error' => 'Please complete all required fields.'];
+    }
+    if (strpos($email, '@') === false) {
+        return ['error' => 'Please enter a valid email address.'];
+    }
+    if ($quantity < 1 || $quantity > 25) {
+        return ['error' => 'Quantity must be between 1 and 25.'];
+    }
+    $catalog = cavemen_kanti_catalog();
+    if (!isset($catalog[$productType])) {
+        return ['error' => 'Please select a valid Kanti product.'];
+    }
+    $item = $catalog[$productType];
+    $scents = cavemen_kanti_scents();
+    $selectedScent = null;
+    $title = (string) $item['title'];
+    $detail = (string) $item['detail'];
+    if (!empty($item['needsScent'])) {
+        if (!isset($scents[$scentId])) {
+            return ['error' => 'Please select a valid scent.'];
+        }
+        $selectedScent = $scentId;
+        $title = 'DAHK Vial: ' . $scents[$scentId][0];
+        $detail = $scents[$scentId][1] . ' • 20ml dropper format';
+    }
+    $unit = (int) $item['unitPriceNaira'];
+    if ($unit < 1) {
+        return ['error' => 'This item is not available for checkout yet.'];
+    }
+
+    return [
+        'data' => [
+            'fullName' => $fullName,
+            'phone' => $phone,
+            'email' => $email,
+            'address' => $address,
+            'city' => $city,
+            'state' => $state,
+            'productType' => $productType,
+            'selectedScent' => $selectedScent,
+            'productTitle' => $title,
+            'productDetail' => $detail,
+            'quantity' => $quantity,
+            'unitPriceNaira' => $unit,
+            'totalNaira' => $unit * $quantity,
+            'notes' => $notes,
+        ],
+    ];
+}
+
 function cavemen_meta_to_object($meta)
 {
     if ($meta === null) {
@@ -532,11 +793,37 @@ function cavemen_generate_dahk_ticket_code($registrationId)
 }
 
 /**
+ * @return 'asali'|'dahk'|'tatsuniya'|'kanti'
+ */
+function cavemen_checkout_kind($txRef)
+{
+    $ref = (string) $txRef;
+    if (strpos($ref, 'DAHK-') === 0) {
+        return 'dahk';
+    }
+    if (strpos($ref, 'TATS-') === 0) {
+        return 'tatsuniya';
+    }
+    if (strpos($ref, 'KANTI-') === 0) {
+        return 'kanti';
+    }
+
+    return 'asali';
+}
+
+/**
  * @return 'asali_registrations'|'dahk_seasons_registrations'
  */
 function cavemen_registration_table_for_txref($txRef)
 {
-    return strpos((string) $txRef, 'DAHK-') === 0 ? 'dahk_seasons_registrations' : 'asali_registrations';
+    $kind = cavemen_checkout_kind($txRef);
+    if ($kind === 'dahk') {
+        return 'dahk_seasons_registrations';
+    }
+    if ($kind === 'asali') {
+        return 'asali_registrations';
+    }
+    throw new InvalidArgumentException('Not a ticket registration reference');
 }
 
 /**
@@ -589,12 +876,220 @@ function cavemen_http_post_json($url, $headers, $body, $bearer = null, $timeout 
 }
 
 /**
+ * @return array{ok: bool, data?: array, error?: string, http?: int}
+ */
+function cavemen_http_get_json($url, $headers, $bearer = null, $timeout = 60)
+{
+    $ch = curl_init($url);
+    $h = $headers;
+    if ($bearer) {
+        $h[] = 'Authorization: Bearer ' . $bearer;
+    }
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPGET => true,
+        CURLOPT_HTTPHEADER => $h,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => (int) $timeout,
+    ]);
+    $out = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($out === false) {
+        return ['ok' => false, 'error' => 'curl failed'];
+    }
+    $j = json_decode($out, true);
+    if (!is_array($j)) {
+        return ['ok' => false, 'error' => 'invalid json', 'raw' => $out];
+    }
+    return ['ok' => $code >= 200 && $code < 300, 'data' => $j, 'http' => $code];
+}
+
+function cavemen_flutterwave_trace_id()
+{
+    return 'cavemen-' . bin2hex(random_bytes(8));
+}
+
+function cavemen_flutterwave_access_token()
+{
+    static $cached = '';
+    static $expiresAt = 0;
+    if ($cached !== '' && time() < $expiresAt) {
+        return $cached;
+    }
+    $id = cavemen_flutterwave_client_id();
+    $secret = cavemen_flutterwave_client_secret();
+    if ($id === '' || $secret === '') {
+        throw new RuntimeException('Flutterwave Client ID and Client Secret are required.');
+    }
+    $ch = curl_init('https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        CURLOPT_POSTFIELDS => http_build_query([
+            'grant_type' => 'client_credentials',
+            'client_id' => $id,
+            'client_secret' => $secret,
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+    $out = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $j = is_string($out) ? json_decode($out, true) : null;
+    if ($code < 200 || $code >= 300 || !is_array($j) || empty($j['access_token'])) {
+        throw new RuntimeException('Flutterwave could not issue an access token. Check FLUTTERWAVE_CLIENT_ID and FLUTTERWAVE_CLIENT_SECRET.');
+    }
+    $cached = (string) $j['access_token'];
+    $ttl = isset($j['expires_in']) ? (int) $j['expires_in'] : 600;
+    $expiresAt = time() + max(60, $ttl - 60);
+    return $cached;
+}
+
+function cavemen_flutterwave_v4_headers($idempotencyKey)
+{
+    $headers = [
+        'Content-Type: application/json',
+        'X-Trace-Id: ' . cavemen_flutterwave_trace_id(),
+    ];
+    $key = (string) $idempotencyKey;
+    if (strlen($key) < 12) {
+        $key = str_pad($key, 12, '0');
+    }
+    if (strlen($key) > 255) {
+        $key = substr($key, 0, 255);
+    }
+    $headers[] = 'X-Idempotency-Key: ' . $key;
+    return $headers;
+}
+
+function cavemen_flutterwave_split_name($fullName)
+{
+    $full = trim((string) $fullName);
+    if ($full === '') {
+        return ['first' => 'Customer', 'last' => 'Cavemen'];
+    }
+    $parts = preg_split('/\s+/', $full);
+    if (!is_array($parts) || $parts === []) {
+        return ['first' => $full, 'last' => $full];
+    }
+    $first = (string) array_shift($parts);
+    $last = $parts !== [] ? implode(' ', $parts) : $first;
+    return ['first' => $first, 'last' => $last];
+}
+
+function cavemen_flutterwave_v4_phone($phone)
+{
+    $digits = cavemen_fw_normalize_phone($phone);
+    $country = '234';
+    $number = $digits;
+    if (strpos($digits, '234') === 0 && strlen($digits) > 3) {
+        $number = substr($digits, 3);
+    }
+    return ['country_code' => $country, 'number' => $number];
+}
+
+function cavemen_flutterwave_v4_find_or_create_customer(array $customer, $idempotencyKey)
+{
+    $token = cavemen_flutterwave_access_token();
+    $base = cavemen_flutterwave_base_url();
+    $name = cavemen_flutterwave_split_name(isset($customer['name']) ? $customer['name'] : '');
+    $payload = [
+        'email' => $customer['email'],
+        'name' => $name,
+        'phone' => cavemen_flutterwave_v4_phone(isset($customer['phone']) ? $customer['phone'] : ''),
+    ];
+    $res = cavemen_http_post_json(
+        $base . '/customers',
+        cavemen_flutterwave_v4_headers($idempotencyKey . '-cus'),
+        json_encode($payload),
+        $token
+    );
+    if (($res['ok'] ?? false) && !empty($res['data']['data']['id'])) {
+        return (string) $res['data']['data']['id'];
+    }
+    $http = isset($res['http']) ? (int) $res['http'] : 0;
+    if ($http === 409) {
+        $lookup = cavemen_http_get_json(
+            $base . '/customers?email=' . rawurlencode((string) $customer['email']),
+            ['X-Trace-Id: ' . cavemen_flutterwave_trace_id()],
+            $token
+        );
+        $rows = [];
+        if (isset($lookup['data']['data']) && is_array($lookup['data']['data'])) {
+            $rows = $lookup['data']['data'];
+        }
+        if (isset($rows['id'])) {
+            return (string) $rows['id'];
+        }
+        if (isset($rows[0]['id'])) {
+            return (string) $rows[0]['id'];
+        }
+    }
+    $msg = is_array($res['data'] ?? null) && isset($res['data']['message'])
+        ? $res['data']['message']
+        : 'Flutterwave customer could not be created.';
+    throw new RuntimeException($msg);
+}
+
+function cavemen_flutterwave_init_payment_v4($txRef, $amountNaira, $customer, $redirectUrl, $registrationId, $attendanceType, array $flow = [])
+{
+    $token = cavemen_flutterwave_access_token();
+    $customerId = cavemen_flutterwave_v4_find_or_create_customer($customer, (string) $txRef);
+    $metaEvent = isset($flow['metaEvent']) ? (string) $flow['metaEvent'] : 'asali';
+    $payload = [
+        'amount' => (int) $amountNaira,
+        'currency' => 'NGN',
+        'customer_id' => $customerId,
+        'redirect_url' => $redirectUrl,
+        'reference' => (string) $txRef,
+        'session_duration' => 60,
+        'max_retry_attempts' => 3,
+        'meta' => cavemen_flutterwave_meta($metaEvent, $registrationId, $attendanceType, $customer),
+    ];
+    $res = cavemen_http_post_json(
+        cavemen_flutterwave_base_url() . '/checkout/sessions',
+        cavemen_flutterwave_v4_headers((string) $txRef),
+        json_encode($payload),
+        $token
+    );
+    if (!($res['ok'] ?? false)) {
+        $msg = is_array($res['data'] ?? null) && isset($res['data']['message'])
+            ? $res['data']['message']
+            : 'Flutterwave checkout could not be started.';
+        throw new RuntimeException($msg);
+    }
+    $j = $res['data'] ?? [];
+    $link = '';
+    if (!empty($j['data']['checkout_url'])) {
+        $link = (string) $j['data']['checkout_url'];
+    } elseif (!empty($j['data']['link'])) {
+        $link = (string) $j['data']['link'];
+    }
+    if ($link === '') {
+        throw new RuntimeException($j['message'] ?? 'Flutterwave did not return a checkout URL.');
+    }
+    return $link;
+}
+
+/**
  * @return string|null
  */
 function cavemen_flutterwave_init_payment($txRef, $amountNaira, $customer, $redirectUrl, $registrationId, $attendanceType, array $flow = [])
 {
-    $secret = cavemen_env('FLUTTERWAVE_SECRET_KEY');
-    if ($secret === null || $secret === '') {
+    if (cavemen_flutterwave_uses_v4()) {
+        return cavemen_flutterwave_init_payment_v4(
+            $txRef,
+            $amountNaira,
+            $customer,
+            $redirectUrl,
+            $registrationId,
+            $attendanceType,
+            $flow
+        );
+    }
+    $secret = cavemen_flutterwave_secret_key();
+    if ($secret === '') {
         return null;
     }
     $publicBase = cavemen_public_base_url();
@@ -613,19 +1108,10 @@ function cavemen_flutterwave_init_payment($txRef, $amountNaira, $customer, $redi
         ],
         'customizations' => [
             'title' => $eventTitle,
-            'description' => 'Ticket payment — Cavemen Africa',
+            'description' => isset($flow['description']) ? (string) $flow['description'] : 'Payment — Cavemen Africa',
             'logo' => $publicBase . '/assets/cavemen-icon.svg',
         ],
-        'meta' => [
-            ['metaname' => 'registration_id', 'metavalue' => (string) $registrationId],
-            ['metaname' => 'attendance_type', 'metavalue' => $attendanceType],
-            ['metaname' => 'cavemen_event', 'metavalue' => $metaEvent],
-            ['metaname' => 'customer_full_name', 'metavalue' => (string) $customer['name']],
-            ['metaname' => 'customer_email', 'metavalue' => (string) $customer['email']],
-            ['metaname' => 'event_datetime', 'metavalue' => cavemen_event_when($metaEvent === 'dahk')],
-            ['metaname' => 'event_venue', 'metavalue' => cavemen_event_venue($metaEvent === 'dahk')],
-            ['metaname' => 'event_flier', 'metavalue' => cavemen_event_flier_url($metaEvent === 'dahk')],
-        ],
+        'meta' => cavemen_flutterwave_meta($metaEvent, $registrationId, $attendanceType, $customer),
     ];
     $res = cavemen_http_post_json(
         'https://api.flutterwave.com/v3/payments',
@@ -652,11 +1138,28 @@ function cavemen_flutterwave_init_payment($txRef, $amountNaira, $customer, $redi
  */
 function cavemen_flutterwave_verify_transaction($transactionId)
 {
-    $secret = cavemen_env('FLUTTERWAVE_SECRET_KEY');
-    if ($secret === null || $secret === '') {
+    $id = (string) $transactionId;
+    if ($id === '') {
         return false;
     }
-    $url = 'https://api.flutterwave.com/v3/transactions/' . rawurlencode((string) $transactionId) . '/verify';
+    if (cavemen_flutterwave_uses_v4()) {
+        $token = cavemen_flutterwave_access_token();
+        $res = cavemen_http_get_json(
+            cavemen_flutterwave_base_url() . '/charges/' . rawurlencode($id),
+            ['X-Trace-Id: ' . cavemen_flutterwave_trace_id()],
+            $token
+        );
+        if (!($res['ok'] ?? false)) {
+            return false;
+        }
+        $status = isset($res['data']['data']['status']) ? (string) $res['data']['data']['status'] : '';
+        return $status === 'succeeded' || $status === 'successful';
+    }
+    $secret = cavemen_flutterwave_secret_key();
+    if ($secret === '') {
+        return false;
+    }
+    $url = 'https://api.flutterwave.com/v3/transactions/' . rawurlencode($id) . '/verify';
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $secret],
@@ -737,6 +1240,55 @@ function cavemen_get_payment_links()
     return is_array($j) ? $j : ['Performer' => '', 'Audience' => ''];
 }
 
+function cavemen_flutterwave_meta($metaEvent, $registrationId, $attendanceType, array $customer)
+{
+    $meta = [
+        ['metaname' => 'registration_id', 'metavalue' => (string) $registrationId],
+        ['metaname' => 'attendance_type', 'metavalue' => (string) $attendanceType],
+        ['metaname' => 'cavemen_event', 'metavalue' => (string) $metaEvent],
+        ['metaname' => 'customer_full_name', 'metavalue' => (string) ($customer['name'] ?? '')],
+        ['metaname' => 'customer_email', 'metavalue' => (string) ($customer['email'] ?? '')],
+    ];
+    if ($metaEvent === 'asali' || $metaEvent === 'dahk') {
+        $isDahk = $metaEvent === 'dahk';
+        $meta[] = ['metaname' => 'event_datetime', 'metavalue' => cavemen_event_when($isDahk)];
+        $meta[] = ['metaname' => 'event_venue', 'metavalue' => cavemen_event_venue($isDahk)];
+        $meta[] = ['metaname' => 'event_flier', 'metavalue' => cavemen_event_flier_url($isDahk)];
+    } elseif ($metaEvent === 'tatsuniya') {
+        $meta[] = ['metaname' => 'event_datetime', 'metavalue' => cavemen_env('TATSUNIYA_EVENT_WHEN', 'Dates confirmed after registration')];
+        $meta[] = ['metaname' => 'event_venue', 'metavalue' => cavemen_asali_venue_line()];
+    }
+    return $meta;
+}
+
+function cavemen_with_payment_ref($url, $txRef, $email = '')
+{
+    $url = trim((string) $url);
+    if ($url === '') {
+        return $url;
+    }
+    $query = [];
+    $parts = parse_url($url);
+    if (!empty($parts['query'])) {
+        parse_str($parts['query'], $query);
+    }
+    $query['tx_ref'] = (string) $txRef;
+    if ($email !== '') {
+        $query['customer_email'] = $email;
+    }
+    $rebuilt = '';
+    if (!empty($parts['scheme']) && !empty($parts['host'])) {
+        $rebuilt = $parts['scheme'] . '://' . $parts['host'];
+        if (!empty($parts['port'])) {
+            $rebuilt .= ':' . $parts['port'];
+        }
+        $rebuilt .= isset($parts['path']) ? $parts['path'] : '';
+    } else {
+        $rebuilt = strtok($url, '?');
+    }
+    return $rebuilt . '?' . http_build_query($query);
+}
+
 function cavemen_get_dahk_payment_links()
 {
     $path = cavemen_site_root() . '/data/dahk-payment-links.json';
@@ -745,6 +1297,68 @@ function cavemen_get_dahk_payment_links()
     }
     $j = json_decode(file_get_contents($path), true);
     return is_array($j) ? $j : ['DAHK Package' => ''];
+}
+
+function cavemen_get_tatsuniya_payment_links()
+{
+    $path = cavemen_site_root() . '/data/tatsuniya-payment-links.json';
+    if (!is_readable($path)) {
+        return ['Workshop' => ''];
+    }
+    $j = json_decode(file_get_contents($path), true);
+    return is_array($j) ? $j : ['Workshop' => ''];
+}
+
+function cavemen_get_kanti_payment_links()
+{
+    $path = cavemen_site_root() . '/data/kanti-payment-links.json';
+    if (!is_readable($path)) {
+        return [];
+    }
+    $j = json_decode(file_get_contents($path), true);
+    return is_array($j) ? $j : [];
+}
+
+function cavemen_kanti_scents()
+{
+    return [
+        'bloom' => ['Bloom', 'Floral, sweet jasmine, fresh green notes'],
+        'wilt' => ['Wilt', 'Slight floral and bergamot'],
+        'dry' => ['Dry', 'Oud notes and slight sandal'],
+        'thorns' => ['Thorns', 'Stronger intense rich oud'],
+        'ashes' => ['Ashes', 'Sandalwood notes, dry cedar'],
+        'roots' => ['Roots', 'Earthy notes and fresh citrusy scents'],
+        'epiphany' => ['Epiphany', 'Chocolate notes, rich arabian notes'],
+    ];
+}
+
+/**
+ * Server-side Kanti catalogue. Unit prices are never taken from the browser.
+ *
+ * @return array<string,array<string,mixed>>
+ */
+function cavemen_kanti_catalog()
+{
+    return [
+        'book' => [
+            'title' => 'Diary of a Heartbreak Kid (DAHK)',
+            'detail' => 'By Salamatu Adamu • Hardcover Anthology',
+            'unitPriceNaira' => 20000,
+            'needsScent' => false,
+        ],
+        'single-vial' => [
+            'title' => 'DAHK Vial',
+            'detail' => '20ml dropper format',
+            'unitPriceNaira' => 3000,
+            'needsScent' => true,
+        ],
+        'full-vials-set' => [
+            'title' => 'DAHK Seasons Vials — Full Set',
+            'detail' => '7 curated oil blends (Bloom to Epiphany) with custom set box',
+            'unitPriceNaira' => 21000,
+            'needsScent' => false,
+        ],
+    ];
 }
 
 /**
@@ -965,7 +1579,10 @@ function cavemen_ticket_pass_context(array $registration, $txRef, $isDahk, array
 
 function cavemen_handle_api_health()
 {
-    $hasFw = (string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '') !== '';
+    $hasFw = cavemen_flutterwave_uses_v4() || cavemen_flutterwave_secret_key() !== '';
+    $hasFwPublic = cavemen_flutterwave_public_key() !== '';
+    $hasFwEncryption = cavemen_flutterwave_encryption_key() !== '';
+    $hasFwClient = cavemen_flutterwave_client_id() !== '';
     $hasSmtp = (string) cavemen_env('SMTP_HOST', '') !== ''
         && (string) cavemen_env('SMTP_USER', '') !== ''
         && (string) cavemen_env('SMTP_PASS', '') !== '';
@@ -986,6 +1603,10 @@ function cavemen_handle_api_health()
         'service' => 'cavemen-africa',
         'php' => true,
         'flutterwaveApi' => $hasFw,
+        'flutterwaveV4' => cavemen_flutterwave_uses_v4(),
+        'flutterwaveClient' => $hasFwClient,
+        'flutterwavePublic' => $hasFwPublic,
+        'flutterwaveEncryption' => $hasFwEncryption,
         'smtp' => $hasSmtp,
         'resend' => $hasResend,
     ]);
@@ -1090,45 +1711,33 @@ function cavemen_handle_api_asali_registrations_post()
         $upd->execute([':tx' => $txRef, ':id' => $registrationId]);
 
         $thankYou = cavemen_public_base_url() . '/asali/register/thank-you/?tx_ref=' . rawurlencode($txRef);
-        $paymentUrl = null;
-        if ((string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '') !== '') {
-            try {
-                $paymentUrl = cavemen_flutterwave_init_payment(
-                    $txRef,
-                    $data['ticketPriceNaira'],
-                    [
-                        'email' => $data['email'],
-                        'phone' => $data['phone'],
-                        'name' => $data['fullName'],
-                    ],
-                    $thankYou,
-                    $registrationId,
-                    $data['attendanceType'],
-                    ['eventTitle' => cavemen_event_name(), 'metaEvent' => 'asali']
-                );
-            } catch (Throwable $e) {
-                error_log('[cavemen] Flutterwave init failed: ' . $e->getMessage());
+        $links = cavemen_get_payment_links();
+        $t = $data['attendanceType'];
+        $static = isset($links[$t]) ? trim((string) $links[$t]) : '';
+        $started = cavemen_begin_flutterwave_payment(
+            $txRef,
+            $data['ticketPriceNaira'],
+            [
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'name' => $data['fullName'],
+            ],
+            $thankYou,
+            $registrationId,
+            $data['attendanceType'],
+            ['eventTitle' => cavemen_event_name(), 'metaEvent' => 'asali'],
+            $static,
+            function () use ($pdo, $registrationId) {
                 $del = $pdo->prepare('DELETE FROM asali_registrations WHERE id = ?');
                 $del->execute([$registrationId]);
-                cavemen_json_response(502, [
-                    'error' => 'Payment could not be started. Please try again in a moment or contact info@cavemen.africa.',
-                ]);
-                return;
             }
-        } else {
-            $links = cavemen_get_payment_links();
-            $t = $data['attendanceType'];
-            $paymentUrl = isset($links[$t]) && trim($links[$t]) !== '' ? trim($links[$t]) : null;
-            if ($paymentUrl === null) {
-                $del = $pdo->prepare('DELETE FROM asali_registrations WHERE id = ?');
-                $del->execute([$registrationId]);
-                cavemen_json_response(503, [
-                    'error' => "Payment link not configured yet for {$t} tickets.",
-                ]);
-                return;
-            }
+        );
+        if (isset($started['error'])) {
+            cavemen_json_response($started['status'], ['error' => $started['error']]);
+            return;
         }
-        $flow = (string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '') !== '' ? 'flutterwave_api' : 'payment_link';
+        $paymentUrl = $started['paymentUrl'];
+        $flow = $started['flow'];
         cavemen_json_response(201, [
             'ok' => true,
             'registrationId' => $registrationId,
@@ -1197,45 +1806,33 @@ function cavemen_handle_api_dahk_registrations_post()
         $upd->execute([':tx' => $txRef, ':id' => $registrationId]);
 
         $thankYou = cavemen_public_base_url() . '/dahk-seasons/register/thank-you/?tx_ref=' . rawurlencode($txRef);
-        $paymentUrl = null;
-        if ((string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '') !== '') {
-            try {
-                $paymentUrl = cavemen_flutterwave_init_payment(
-                    $txRef,
-                    $data['ticketPriceNaira'],
-                    [
-                        'email' => $data['email'],
-                        'phone' => $data['phone'],
-                        'name' => $data['fullName'],
-                    ],
-                    $thankYou,
-                    $registrationId,
-                    $data['attendanceType'],
-                    ['eventTitle' => cavemen_dahk_event_name(), 'metaEvent' => 'dahk']
-                );
-            } catch (Throwable $e) {
-                error_log('[cavemen] DAHK Flutterwave init failed: ' . $e->getMessage());
+        $links = cavemen_get_dahk_payment_links();
+        $t = $data['attendanceType'];
+        $static = isset($links[$t]) ? trim((string) $links[$t]) : '';
+        $started = cavemen_begin_flutterwave_payment(
+            $txRef,
+            $data['ticketPriceNaira'],
+            [
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'name' => $data['fullName'],
+            ],
+            $thankYou,
+            $registrationId,
+            $data['attendanceType'],
+            ['eventTitle' => cavemen_dahk_event_name(), 'metaEvent' => 'dahk'],
+            $static,
+            function () use ($pdo, $registrationId) {
                 $del = $pdo->prepare('DELETE FROM dahk_seasons_registrations WHERE id = ?');
                 $del->execute([$registrationId]);
-                cavemen_json_response(502, [
-                    'error' => 'Payment could not be started. Please try again in a moment or contact info@cavemen.africa.',
-                ]);
-                return;
             }
-        } else {
-            $links = cavemen_get_dahk_payment_links();
-            $t = $data['attendanceType'];
-            $paymentUrl = isset($links[$t]) && trim($links[$t]) !== '' ? trim($links[$t]) : null;
-            if ($paymentUrl === null) {
-                $del = $pdo->prepare('DELETE FROM dahk_seasons_registrations WHERE id = ?');
-                $del->execute([$registrationId]);
-                cavemen_json_response(503, [
-                    'error' => "Payment link not configured yet for {$t} tickets.",
-                ]);
-                return;
-            }
+        );
+        if (isset($started['error'])) {
+            cavemen_json_response($started['status'], ['error' => $started['error']]);
+            return;
         }
-        $flow = (string) cavemen_env('FLUTTERWAVE_SECRET_KEY', '') !== '' ? 'flutterwave_api' : 'payment_link';
+        $paymentUrl = $started['paymentUrl'];
+        $flow = $started['flow'];
         cavemen_json_response(201, [
             'ok' => true,
             'registrationId' => $registrationId,
@@ -1257,28 +1854,219 @@ function cavemen_handle_api_dahk_registrations_post()
     }
 }
 
+function cavemen_handle_api_tatsuniya_registrations_post()
+{
+    try {
+        $pdo = cavemen_pdo();
+        try {
+            $raw = cavemen_read_request_body(65536);
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'Payload too large') {
+                cavemen_json_response(413, ['error' => 'Request body too large.']);
+                return;
+            }
+            cavemen_json_response(400, ['error' => 'Could not read the registration request. Please try again.']);
+            return;
+        }
+        $payload = json_decode($raw ?: '[]', true);
+        if (!is_array($payload)) {
+            cavemen_json_response(400, ['error' => 'Invalid JSON request body.']);
+            return;
+        }
+        $validation = cavemen_validate_tatsuniya_registration($payload);
+        if (isset($validation['error'])) {
+            cavemen_json_response(400, ['error' => $validation['error']]);
+            return;
+        }
+        $data = $validation['data'];
+
+        $ins = $pdo->prepare('INSERT INTO tatsuniya_registrations (
+    child_name, child_age, child_school, parent_name, phone, email, discovery, medical, notes, ticket_price_naira, payment_status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, \'pending\')');
+        $ins->execute([
+            $data['childName'],
+            $data['childAge'],
+            $data['childSchool'],
+            $data['parentName'],
+            $data['phone'],
+            $data['email'],
+            $data['discovery'],
+            $data['medical'],
+            $data['notes'],
+            $data['ticketPriceNaira'],
+        ]);
+        $registrationId = (int) $pdo->lastInsertId();
+        $txRef = 'TATS-' . $registrationId . '-' . (int) (microtime(true) * 1000);
+        $upd = $pdo->prepare('UPDATE tatsuniya_registrations SET tx_ref = :tx WHERE id = :id');
+        $upd->execute([':tx' => $txRef, ':id' => $registrationId]);
+
+        $thankYou = cavemen_public_base_url() . '/tatsuniya/register/thank-you/?tx_ref=' . rawurlencode($txRef);
+        $links = cavemen_get_tatsuniya_payment_links();
+        $static = isset($links['Workshop']) ? trim((string) $links['Workshop']) : '';
+        $started = cavemen_begin_flutterwave_payment(
+            $txRef,
+            $data['ticketPriceNaira'],
+            [
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'name' => $data['parentName'],
+            ],
+            $thankYou,
+            $registrationId,
+            'Workshop',
+            [
+                'eventTitle' => cavemen_tatsuniya_event_name(),
+                'metaEvent' => 'tatsuniya',
+                'description' => 'Tatsuniya workshop fee — Cavemen Africa',
+            ],
+            $static,
+            function () use ($pdo, $registrationId) {
+                $del = $pdo->prepare('DELETE FROM tatsuniya_registrations WHERE id = ?');
+                $del->execute([$registrationId]);
+            }
+        );
+        if (isset($started['error'])) {
+            cavemen_json_response($started['status'], ['error' => $started['error']]);
+            return;
+        }
+        $paymentUrl = $started['paymentUrl'];
+        $flow = $started['flow'];
+        cavemen_json_response(201, [
+            'ok' => true,
+            'registrationId' => $registrationId,
+            'message' => 'Registration received successfully.',
+            'paymentUrl' => $paymentUrl,
+            'ticketPriceNaira' => $data['ticketPriceNaira'],
+            'paymentFlow' => $flow,
+        ]);
+    } catch (PDOException $e) {
+        error_log('[cavemen] Tatsuniya registration PDO error: ' . $e->getMessage());
+        cavemen_json_response(503, [
+            'error' => 'Registration could not be saved. The database may be misconfigured (check MYSQL_* in .env and cPanel MySQL user privileges).',
+        ]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] Tatsuniya registration error: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Registration could not be completed. Please try again in a moment or contact info@cavemen.africa.',
+        ]);
+    }
+}
+
+function cavemen_handle_api_kanti_orders_post()
+{
+    try {
+        $pdo = cavemen_pdo();
+        try {
+            $raw = cavemen_read_request_body(65536);
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'Payload too large') {
+                cavemen_json_response(413, ['error' => 'Request body too large.']);
+                return;
+            }
+            cavemen_json_response(400, ['error' => 'Could not read the checkout request. Please try again.']);
+            return;
+        }
+        $payload = json_decode($raw ?: '[]', true);
+        if (!is_array($payload)) {
+            cavemen_json_response(400, ['error' => 'Invalid JSON request body.']);
+            return;
+        }
+        $validation = cavemen_validate_kanti_order($payload);
+        if (isset($validation['error'])) {
+            cavemen_json_response(400, ['error' => $validation['error']]);
+            return;
+        }
+        $data = $validation['data'];
+
+        $ins = $pdo->prepare('INSERT INTO kanti_orders (
+    full_name, phone, email, address, city, state, product_type, selected_scent, product_title, quantity, unit_price_naira, total_naira, notes, payment_status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, \'pending\')');
+        $ins->execute([
+            $data['fullName'],
+            $data['phone'],
+            $data['email'],
+            $data['address'],
+            $data['city'],
+            $data['state'],
+            $data['productType'],
+            $data['selectedScent'],
+            $data['productTitle'],
+            $data['quantity'],
+            $data['unitPriceNaira'],
+            $data['totalNaira'],
+            $data['notes'],
+        ]);
+        $orderId = (int) $pdo->lastInsertId();
+        $txRef = 'KANTI-' . $orderId . '-' . (int) (microtime(true) * 1000);
+        $upd = $pdo->prepare('UPDATE kanti_orders SET tx_ref = :tx WHERE id = :id');
+        $upd->execute([':tx' => $txRef, ':id' => $orderId]);
+
+        $thankYou = cavemen_public_base_url() . '/kanti/purchase/thank-you/?tx_ref=' . rawurlencode($txRef);
+        $started = cavemen_start_kanti_payment($pdo, $orderId, $txRef, $data, $thankYou);
+        if (isset($started['error'])) {
+            cavemen_json_response($started['status'], ['error' => $started['error']]);
+            return;
+        }
+        $paymentUrl = $started['paymentUrl'];
+        $flow = $started['flow'];
+        cavemen_json_response(201, [
+            'ok' => true,
+            'orderId' => $orderId,
+            'message' => 'Order received successfully.',
+            'paymentUrl' => $paymentUrl,
+            'ticketPriceNaira' => $data['totalNaira'],
+            'totalNaira' => $data['totalNaira'],
+            'paymentFlow' => $flow,
+        ]);
+    } catch (PDOException $e) {
+        error_log('[cavemen] Kanti order PDO error: ' . $e->getMessage());
+        cavemen_json_response(503, [
+            'error' => 'Order could not be saved. The database may be misconfigured (check MYSQL_* in .env and cPanel MySQL user privileges).',
+        ]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] Kanti order error: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Checkout could not be completed. Please try again in a moment or contact info@cavemen.africa.',
+        ]);
+    }
+}
+
+function cavemen_request_header_value($name)
+{
+    $want = strtolower((string) $name);
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    if (is_array($headers)) {
+        foreach ($headers as $k => $v) {
+            if (strtolower((string) $k) === $want) {
+                return (string) $v;
+            }
+        }
+    }
+    $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $want));
+    if (!empty($_SERVER[$serverKey])) {
+        return (string) $_SERVER[$serverKey];
+    }
+    return '';
+}
+
+function cavemen_flutterwave_webhook_authorized($raw, $secretHash)
+{
+    $hmacSig = cavemen_request_header_value('flutterwave-signature');
+    if ($hmacSig !== '') {
+        $calc = base64_encode(hash_hmac('sha256', (string) $raw, (string) $secretHash, true));
+        if (hash_equals($calc, $hmacSig)) {
+            return true;
+        }
+    }
+    $verif = cavemen_request_header_value('verif-hash');
+    return $verif !== '' && hash_equals((string) $secretHash, $verif);
+}
+
 function cavemen_handle_api_flutterwave_webhook()
 {
     $expected = cavemen_env('FLUTTERWAVE_SECRET_HASH');
     if ($expected === null || $expected === '') {
         cavemen_json_response(503, ['error' => 'Webhook not configured (FLUTTERWAVE_SECRET_HASH).']);
-        return;
-    }
-    $headers = function_exists('getallheaders') ? getallheaders() : [];
-    $verif = '';
-    if (is_array($headers)) {
-        foreach ($headers as $k => $v) {
-            if (strtolower((string) $k) === 'verif-hash') {
-                $verif = (string) $v;
-                break;
-            }
-        }
-    }
-    if ($verif === '' && !empty($_SERVER['HTTP_VERIF_HASH'])) {
-        $verif = (string) $_SERVER['HTTP_VERIF_HASH'];
-    }
-    if ($verif === '' || !hash_equals((string) $expected, $verif)) {
-        cavemen_json_response(401, ['error' => 'Invalid webhook signature.']);
         return;
     }
     $raw = '';
@@ -1293,24 +2081,29 @@ function cavemen_handle_api_flutterwave_webhook()
         cavemen_json_response(400, ['error' => 'Could not read webhook body.']);
         return;
     }
+    if (!cavemen_flutterwave_webhook_authorized($raw, (string) $expected)) {
+        cavemen_json_response(401, ['error' => 'Invalid webhook signature.']);
+        return;
+    }
     $body = json_decode($raw ?: '[]', true);
     if (!is_array($body)) {
         cavemen_json_response(400, ['error' => 'Invalid JSON.']);
         return;
     }
-    $eventName = (string) ($body['event'] ?? '');
+    $eventName = (string) ($body['type'] ?? $body['event'] ?? '');
     $accepted = ['charge.completed', 'charge.success', 'charge.successful'];
     if (!in_array($eventName, $accepted, true)) {
         cavemen_json_response(200, ['received' => true, 'ignored' => true]);
         return;
     }
     $d = $body['data'] ?? null;
-    if (!is_array($d) || ($d['status'] ?? '') !== 'successful') {
+    $status = is_array($d) ? (string) ($d['status'] ?? '') : '';
+    if (!is_array($d) || ($status !== 'successful' && $status !== 'succeeded')) {
         cavemen_json_response(200, ['received' => true, 'ignored' => true]);
         return;
     }
     $transactionId = $d['id'] ?? null;
-    $txRef = $d['tx_ref'] ?? null;
+    $txRef = $d['tx_ref'] ?? ($d['reference'] ?? null);
     if ($transactionId === null || $transactionId === '' || $txRef === null || $txRef === '') {
         cavemen_json_response(200, ['received' => true, 'ignored' => true]);
         return;
@@ -1321,17 +2114,37 @@ function cavemen_handle_api_flutterwave_webhook()
         return;
     }
     $meta = cavemen_meta_to_object($d['meta'] ?? null);
+    $kind = cavemen_checkout_kind((string) $txRef);
+    if (isset($meta['cavemen_event'])) {
+        $fromMeta = (string) $meta['cavemen_event'];
+        if (in_array($fromMeta, ['asali', 'dahk', 'tatsuniya', 'kanti'], true)) {
+            $kind = $fromMeta;
+        }
+    }
+    $pdo = cavemen_pdo();
+    if ($kind === 'tatsuniya') {
+        cavemen_mark_tatsuniya_paid($pdo, (string) $txRef, (string) $transactionId, $meta);
+        return;
+    }
+    if ($kind === 'kanti') {
+        cavemen_mark_kanti_paid($pdo, (string) $txRef, (string) $transactionId, $meta);
+        return;
+    }
+
     $idFromMeta = null;
     if (isset($meta['registration_id'])) {
         $idFromMeta = (int) $meta['registration_id'];
     }
     $metaIdValid = $idFromMeta !== null && $idFromMeta > 0;
-    $metaEvent = isset($meta['cavemen_event']) && (string) $meta['cavemen_event'] === 'dahk' ? 'dahk' : 'asali';
-    $tableFromMeta = $metaEvent === 'dahk' ? 'dahk_seasons_registrations' : 'asali_registrations';
+    $tableFromMeta = $kind === 'dahk' ? 'dahk_seasons_registrations' : 'asali_registrations';
 
-    $pdo = cavemen_pdo();
-    $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
-    $table = cavemen_registration_table_for_txref((string) $txRef);
+    try {
+        $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+        $table = cavemen_registration_table_for_txref((string) $txRef);
+    } catch (InvalidArgumentException $e) {
+        $reg = null;
+        $table = $tableFromMeta;
+    }
     if (!$reg && $metaIdValid) {
         $byId = cavemen_fetch_registration_by_id($pdo, $idFromMeta, $tableFromMeta);
         if ($byId && ($byId['txRef'] ?? null) === $txRef) {
@@ -1391,6 +2204,208 @@ function cavemen_handle_api_flutterwave_webhook()
     cavemen_json_response(200, ['received' => true]);
 }
 
+function cavemen_generate_tatsuniya_code($registrationId)
+{
+    $suffix = strtoupper(bin2hex(random_bytes(4)));
+    return 'TATS-' . $registrationId . '-' . $suffix;
+}
+
+function cavemen_fetch_tatsuniya_by_txref(PDO $pdo, $txRef)
+{
+    $stmt = $pdo->prepare('SELECT * FROM tatsuniya_registrations WHERE tx_ref = :tx');
+    $stmt->execute([':tx' => $txRef]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? cavemen_tatsuniya_row($row) : null;
+}
+
+function cavemen_tatsuniya_row($row)
+{
+    return [
+        'id' => (int) $row['id'],
+        'childName' => $row['child_name'],
+        'childAge' => (int) $row['child_age'],
+        'childSchool' => $row['child_school'],
+        'parentName' => $row['parent_name'],
+        'fullName' => $row['parent_name'],
+        'phone' => $row['phone'],
+        'email' => $row['email'],
+        'discovery' => $row['discovery'],
+        'medical' => $row['medical'],
+        'notes' => $row['notes'],
+        'ticketPriceNaira' => (int) $row['ticket_price_naira'],
+        'paymentStatus' => $row['payment_status'] ?? 'pending',
+        'txRef' => $row['tx_ref'] ?? null,
+        'ticketCode' => $row['ticket_code'] ?? null,
+        'flutterwaveTransactionId' => $row['flutterwave_transaction_id'] ?? null,
+        'ticketEmailSentAt' => $row['ticket_email_sent_at'] ?? null,
+    ];
+}
+
+function cavemen_fetch_kanti_by_txref(PDO $pdo, $txRef)
+{
+    $stmt = $pdo->prepare('SELECT * FROM kanti_orders WHERE tx_ref = :tx');
+    $stmt->execute([':tx' => $txRef]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? cavemen_kanti_order_row($row) : null;
+}
+
+function cavemen_kanti_order_row($row)
+{
+    return [
+        'id' => (int) $row['id'],
+        'fullName' => $row['full_name'],
+        'phone' => $row['phone'],
+        'email' => $row['email'],
+        'address' => $row['address'],
+        'city' => $row['city'],
+        'state' => $row['state'],
+        'productType' => $row['product_type'],
+        'selectedScent' => $row['selected_scent'],
+        'productTitle' => $row['product_title'],
+        'quantity' => (int) $row['quantity'],
+        'unitPriceNaira' => (int) $row['unit_price_naira'],
+        'totalNaira' => (int) $row['total_naira'],
+        'notes' => $row['notes'],
+        'paymentStatus' => $row['payment_status'] ?? 'pending',
+        'txRef' => $row['tx_ref'] ?? null,
+        'flutterwaveTransactionId' => $row['flutterwave_transaction_id'] ?? null,
+        'confirmationEmailSentAt' => $row['confirmation_email_sent_at'] ?? null,
+    ];
+}
+
+function cavemen_mark_tatsuniya_paid(PDO $pdo, $txRef, $transactionId, array $meta)
+{
+    $reg = cavemen_fetch_tatsuniya_by_txref($pdo, $txRef);
+    if (!$reg && isset($meta['registration_id'])) {
+        $stmt = $pdo->prepare('SELECT * FROM tatsuniya_registrations WHERE id = :id');
+        $stmt->execute([':id' => (int) $meta['registration_id']]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && ($row['tx_ref'] ?? null) === $txRef) {
+            $reg = cavemen_tatsuniya_row($row);
+        }
+    }
+    if (!$reg) {
+        error_log('[cavemen] Webhook: Tatsuniya registration not found ' . $txRef);
+        cavemen_json_response(200, ['received' => true, 'ignored' => true]);
+        return;
+    }
+    if ($reg['paymentStatus'] === 'paid' && !empty($reg['ticketEmailSentAt'])) {
+        cavemen_json_response(200, ['received' => true, 'duplicate' => true]);
+        return;
+    }
+    $code = $reg['ticketCode'] ?: cavemen_generate_tatsuniya_code($reg['id']);
+    if ($reg['paymentStatus'] !== 'paid') {
+        $st = $pdo->prepare("UPDATE tatsuniya_registrations SET
+      payment_status = 'paid',
+      flutterwave_transaction_id = :tid,
+      ticket_code = :code
+     WHERE id = :id");
+        $st->execute([
+            ':tid' => $transactionId,
+            ':code' => $code,
+            ':id' => $reg['id'],
+        ]);
+    } elseif (empty($reg['ticketCode'])) {
+        $st = $pdo->prepare('UPDATE tatsuniya_registrations SET ticket_code = :code WHERE id = :id');
+        $st->execute([':code' => $code, ':id' => $reg['id']]);
+    }
+    $reg = cavemen_fetch_tatsuniya_by_txref($pdo, $txRef);
+    if ($reg && empty($reg['ticketEmailSentAt'])) {
+        try {
+            $built = CavemenCheckoutEmail::build(
+                $reg['parentName'],
+                'Tatsuniya registration confirmed',
+                'your workshop place is confirmed.',
+                [
+                    'Child' => $reg['childName'] . ' (' . $reg['childAge'] . ' years)',
+                    'Workshop' => cavemen_tatsuniya_event_name(),
+                    'Fee' => cavemen_format_ngn($reg['ticketPriceNaira']),
+                    'Confirmation' => $code,
+                    'Reference' => $txRef,
+                ],
+                'Bring this confirmation to the workshop. If you have questions, write to info@cavemen.africa.'
+            );
+            $sent = CavemenCheckoutEmail::send(
+                $reg['email'],
+                'Your Tatsuniya place is confirmed — Cavemen Africa',
+                $built['html'],
+                $built['text']
+            );
+            if ($sent) {
+                $m = $pdo->prepare('UPDATE tatsuniya_registrations SET ticket_email_sent_at = CURRENT_TIMESTAMP WHERE id = ?');
+                $m->execute([$reg['id']]);
+            }
+        } catch (Throwable $e) {
+            error_log('[cavemen] Tatsuniya confirmation email: ' . $e->getMessage());
+        }
+    }
+    cavemen_json_response(200, ['received' => true]);
+}
+
+function cavemen_mark_kanti_paid(PDO $pdo, $txRef, $transactionId, array $meta)
+{
+    $order = cavemen_fetch_kanti_by_txref($pdo, $txRef);
+    if (!$order && isset($meta['registration_id'])) {
+        $stmt = $pdo->prepare('SELECT * FROM kanti_orders WHERE id = :id');
+        $stmt->execute([':id' => (int) $meta['registration_id']]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && ($row['tx_ref'] ?? null) === $txRef) {
+            $order = cavemen_kanti_order_row($row);
+        }
+    }
+    if (!$order) {
+        error_log('[cavemen] Webhook: Kanti order not found ' . $txRef);
+        cavemen_json_response(200, ['received' => true, 'ignored' => true]);
+        return;
+    }
+    if ($order['paymentStatus'] === 'paid' && !empty($order['confirmationEmailSentAt'])) {
+        cavemen_json_response(200, ['received' => true, 'duplicate' => true]);
+        return;
+    }
+    if ($order['paymentStatus'] !== 'paid') {
+        $st = $pdo->prepare("UPDATE kanti_orders SET
+      payment_status = 'paid',
+      flutterwave_transaction_id = :tid
+     WHERE id = :id");
+        $st->execute([
+            ':tid' => $transactionId,
+            ':id' => $order['id'],
+        ]);
+    }
+    $order = cavemen_fetch_kanti_by_txref($pdo, $txRef);
+    if ($order && empty($order['confirmationEmailSentAt'])) {
+        try {
+            $delivery = $order['address'] . ', ' . $order['city'] . ', ' . $order['state'];
+            $built = CavemenCheckoutEmail::build(
+                $order['fullName'],
+                'Kanti order confirmed',
+                'we have received your payment and will pack this order by hand.',
+                [
+                    'Item' => $order['productTitle'],
+                    'Quantity' => (string) $order['quantity'],
+                    'Total' => cavemen_format_ngn($order['totalNaira']),
+                    'Delivery' => $delivery,
+                    'Reference' => $txRef,
+                ],
+                'We will be in touch about delivery. Questions: info@cavemen.africa.'
+            );
+            $sent = CavemenCheckoutEmail::send(
+                $order['email'],
+                'Your Kanti order — Cavemen Africa',
+                $built['html'],
+                $built['text']
+            );
+            if ($sent) {
+                $m = $pdo->prepare('UPDATE kanti_orders SET confirmation_email_sent_at = CURRENT_TIMESTAMP WHERE id = ?');
+                $m->execute([$order['id']]);
+            }
+        } catch (Throwable $e) {
+            error_log('[cavemen] Kanti confirmation email: ' . $e->getMessage());
+        }
+    }
+    cavemen_json_response(200, ['received' => true]);
+}
+
 function cavemen_handle_registration_payment_status()
 {
     $txRef = '';
@@ -1405,7 +2420,12 @@ function cavemen_handle_registration_payment_status()
         return;
     }
     $pdo = cavemen_pdo();
-    $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+    try {
+        $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+    } catch (InvalidArgumentException $e) {
+        cavemen_json_response(404, ['error' => 'Registration not found.']);
+        return;
+    }
     if (!$reg) {
         cavemen_json_response(404, ['error' => 'Registration not found.']);
         return;
@@ -1439,6 +2459,284 @@ function cavemen_handle_dahk_payment_status()
     cavemen_handle_registration_payment_status();
 }
 
+function cavemen_read_tx_ref_query()
+{
+    $txRef = '';
+    if (isset($_GET['tx_ref'])) {
+        $txRef = trim((string) $_GET['tx_ref']);
+    }
+    if ($txRef === '' && isset($_GET['txRef'])) {
+        $txRef = trim((string) $_GET['txRef']);
+    }
+    return $txRef;
+}
+
+function cavemen_handle_tatsuniya_payment_status()
+{
+    $txRef = cavemen_read_tx_ref_query();
+    if ($txRef === '') {
+        cavemen_json_response(400, ['error' => 'tx_ref is required.']);
+        return;
+    }
+    $pdo = cavemen_pdo();
+    $reg = cavemen_fetch_tatsuniya_by_txref($pdo, $txRef);
+    if (!$reg) {
+        cavemen_json_response(404, ['error' => 'Registration not found.']);
+        return;
+    }
+    $paid = $reg['paymentStatus'] === 'paid';
+    cavemen_json_response(200, [
+        'status' => $paid ? 'paid' : 'pending',
+        'eventName' => cavemen_tatsuniya_event_name(),
+        'fullName' => $reg['parentName'],
+        'childName' => $reg['childName'],
+        'attendanceType' => 'Workshop',
+        'ticketPriceNaira' => $reg['ticketPriceNaira'],
+        'ticketCode' => $reg['ticketCode'] ?: null,
+        'ticketReady' => $paid && !empty($reg['ticketCode']),
+        'pdfUrl' => null,
+    ]);
+}
+
+function cavemen_handle_kanti_payment_status()
+{
+    $txRef = cavemen_read_tx_ref_query();
+    if ($txRef === '') {
+        cavemen_json_response(400, ['error' => 'tx_ref is required.']);
+        return;
+    }
+    $pdo = cavemen_pdo();
+    $order = cavemen_fetch_kanti_by_txref($pdo, $txRef);
+    if (!$order) {
+        cavemen_json_response(404, ['error' => 'Order not found.']);
+        return;
+    }
+    $paid = $order['paymentStatus'] === 'paid';
+    cavemen_json_response(200, [
+        'status' => $paid ? 'paid' : 'pending',
+        'eventName' => $order['productTitle'],
+        'fullName' => $order['fullName'],
+        'productTitle' => $order['productTitle'],
+        'quantity' => $order['quantity'],
+        'ticketPriceNaira' => $order['totalNaira'],
+        'totalNaira' => $order['totalNaira'],
+        'ticketCode' => null,
+        'ticketReady' => $paid,
+        'pdfUrl' => null,
+    ]);
+}
+
+function cavemen_hosted_pay_url($txRef)
+{
+    return cavemen_public_base_url() . '/cavemen-api.php?route=hosted-pay&tx_ref=' . rawurlencode((string) $txRef);
+}
+
+/**
+ * One checkout path for Asali, DAHK, Tatsuniya, and Kanti.
+ *
+ * @param callable():void $onAbort
+ * @param array<string,mixed> $flow
+ * @param array<string,string> $customer
+ * @return array{paymentUrl?:string,flow?:string,error?:string,status?:int}
+ */
+function cavemen_begin_flutterwave_payment($txRef, $amountNaira, array $customer, $thankYou, $registrationId, $attendanceType, array $flow, $staticUrl, $onAbort)
+{
+    if (cavemen_flutterwave_uses_v4() || cavemen_flutterwave_secret_key() !== '') {
+        try {
+            $paymentUrl = cavemen_flutterwave_init_payment(
+                $txRef,
+                $amountNaira,
+                $customer,
+                $thankYou,
+                $registrationId,
+                $attendanceType,
+                $flow
+            );
+            return ['paymentUrl' => $paymentUrl, 'flow' => 'flutterwave_api'];
+        } catch (Throwable $e) {
+            error_log('[cavemen] Flutterwave init failed: ' . $e->getMessage());
+            $onAbort();
+            return [
+                'status' => 502,
+                'error' => 'Payment could not be started. Please try again in a moment or contact info@cavemen.africa.',
+            ];
+        }
+    }
+
+    if (cavemen_flutterwave_public_key() !== '') {
+        return ['paymentUrl' => cavemen_hosted_pay_url($txRef), 'flow' => 'hosted_pay'];
+    }
+
+    $link = is_string($staticUrl) ? trim($staticUrl) : '';
+    if ($link !== '') {
+        return [
+            'paymentUrl' => cavemen_with_payment_ref($link, $txRef, $customer['email']),
+            'flow' => 'payment_link',
+        ];
+    }
+
+    $onAbort();
+    return [
+        'status' => 503,
+        'error' => 'Flutterwave is not configured. Add FLUTTERWAVE_CLIENT_ID, FLUTTERWAVE_CLIENT_SECRET, and FLUTTERWAVE_ENCRYPTION_KEY to site/.env.',
+    ];
+}
+
+/**
+ * @param array<string,mixed> $data
+ * @return array{paymentUrl?:string,flow?:string,error?:string,status?:int}
+ */
+function cavemen_start_kanti_payment(PDO $pdo, $orderId, $txRef, array $data, $thankYou)
+{
+    $links = cavemen_get_kanti_payment_links();
+    $t = $data['productType'];
+    $static = isset($links[$t]) ? trim((string) $links[$t]) : '';
+    return cavemen_begin_flutterwave_payment(
+        $txRef,
+        $data['totalNaira'],
+        [
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'name' => $data['fullName'],
+        ],
+        $thankYou,
+        $orderId,
+        $data['productType'],
+        [
+            'eventTitle' => 'Kanti · ' . $data['productTitle'],
+            'metaEvent' => 'kanti',
+            'description' => 'Kanti order — Cavemen Africa',
+        ],
+        $static,
+        function () use ($pdo, $orderId) {
+            $del = $pdo->prepare('DELETE FROM kanti_orders WHERE id = ?');
+            $del->execute([$orderId]);
+        }
+    );
+}
+
+/**
+ * @return ?array<string,mixed>
+ */
+function cavemen_hosted_pay_context(PDO $pdo, $txRef)
+{
+    $kind = cavemen_checkout_kind($txRef);
+    $base = cavemen_public_base_url();
+    if ($kind === 'kanti') {
+        $order = cavemen_fetch_kanti_by_txref($pdo, $txRef);
+        if (!$order) {
+            return null;
+        }
+        return [
+            'id' => $order['id'],
+            'fullName' => $order['fullName'],
+            'email' => $order['email'],
+            'phone' => $order['phone'],
+            'amount' => $order['totalNaira'],
+            'paid' => $order['paymentStatus'] === 'paid',
+            'event' => 'kanti',
+            'title' => 'Kanti · ' . $order['productTitle'],
+            'description' => 'Kanti order — Cavemen Africa',
+            'thankYou' => $base . '/kanti/purchase/thank-you/?tx_ref=' . rawurlencode($txRef),
+        ];
+    }
+    if ($kind === 'tatsuniya') {
+        $reg = cavemen_fetch_tatsuniya_by_txref($pdo, $txRef);
+        if (!$reg) {
+            return null;
+        }
+        return [
+            'id' => $reg['id'],
+            'fullName' => $reg['fullName'],
+            'email' => $reg['email'],
+            'phone' => $reg['phone'],
+            'amount' => $reg['ticketPriceNaira'],
+            'paid' => $reg['paymentStatus'] === 'paid',
+            'event' => 'tatsuniya',
+            'title' => cavemen_tatsuniya_event_name(),
+            'description' => 'Tatsuniya workshop fee — Cavemen Africa',
+            'thankYou' => $base . '/tatsuniya/register/thank-you/?tx_ref=' . rawurlencode($txRef),
+        ];
+    }
+    $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+    if (!$reg) {
+        return null;
+    }
+    $isDahk = $kind === 'dahk';
+    return [
+        'id' => $reg['id'],
+        'fullName' => $reg['fullName'],
+        'email' => $reg['email'],
+        'phone' => $reg['phone'],
+        'amount' => $reg['ticketPriceNaira'],
+        'paid' => $reg['paymentStatus'] === 'paid',
+        'event' => $isDahk ? 'dahk' : 'asali',
+        'title' => $isDahk ? cavemen_dahk_event_name() : cavemen_event_name(),
+        'description' => 'Payment — Cavemen Africa',
+        'thankYou' => $base . ($isDahk ? '/dahk-seasons/register/thank-you/' : '/asali/register/thank-you/')
+            . '?tx_ref=' . rawurlencode($txRef),
+    ];
+}
+
+function cavemen_handle_hosted_pay()
+{
+    $txRef = cavemen_read_tx_ref_query();
+    if ($txRef === '') {
+        cavemen_json_response(400, ['error' => 'A payment reference is required.']);
+        return;
+    }
+    $public = cavemen_flutterwave_public_key();
+    if ($public === '') {
+        cavemen_json_response(503, [
+            'error' => 'FLUTTERWAVE_PUBLIC_KEY is not set. Add the public, secret, and encryption keys to site/.env.',
+        ]);
+        return;
+    }
+    try {
+        $pdo = cavemen_pdo();
+        $ctx = cavemen_hosted_pay_context($pdo, $txRef);
+    } catch (Throwable $e) {
+        error_log('[cavemen] hosted-pay database error: ' . $e->getMessage());
+        cavemen_json_response(503, [
+            'error' => 'The order database is unreachable. Check MYSQL_* in site/.env.',
+        ]);
+        return;
+    }
+    if (!$ctx) {
+        cavemen_json_response(404, ['error' => 'Order not found.']);
+        return;
+    }
+    if ($ctx['paid']) {
+        header('Location: ' . $ctx['thankYou'], true, 302);
+        exit;
+    }
+    $e = function ($value) {
+        return htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    };
+    $logo = cavemen_public_base_url() . '/assets/cavemen-icon.svg';
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pay · '
+        . $e($ctx['title']) . '</title></head><body style="font-family:Georgia,serif;background:#f6f1e8;color:#1c1915;padding:3rem 1.5rem;text-align:center;">'
+        . '<p>Opening Flutterwave checkout for ' . $e($ctx['title']) . ' — ' . $e(cavemen_format_ngn($ctx['amount'])) . '</p>'
+        . '<form id="cavemen-fw-pay" method="POST" action="https://checkout.flutterwave.com/v3/hosted/pay">'
+        . '<input type="hidden" name="public_key" value="' . $e($public) . '">'
+        . '<input type="hidden" name="tx_ref" value="' . $e($txRef) . '">'
+        . '<input type="hidden" name="amount" value="' . $e((string) (int) $ctx['amount']) . '">'
+        . '<input type="hidden" name="currency" value="NGN">'
+        . '<input type="hidden" name="redirect_url" value="' . $e($ctx['thankYou']) . '">'
+        . '<input type="hidden" name="customer[email]" value="' . $e($ctx['email']) . '">'
+        . '<input type="hidden" name="customer[name]" value="' . $e($ctx['fullName']) . '">'
+        . '<input type="hidden" name="customer[phonenumber]" value="' . $e(cavemen_fw_normalize_phone($ctx['phone'])) . '">'
+        . '<input type="hidden" name="customizations[title]" value="' . $e($ctx['title']) . '">'
+        . '<input type="hidden" name="customizations[description]" value="' . $e($ctx['description']) . '">'
+        . '<input type="hidden" name="customizations[logo]" value="' . $e($logo) . '">'
+        . '<input type="hidden" name="meta[cavemen_event]" value="' . $e($ctx['event']) . '">'
+        . '<input type="hidden" name="meta[registration_id]" value="' . $e((string) $ctx['id']) . '">'
+        . '<button type="submit" style="margin-top:1.25rem;padding:0.85rem 1.4rem;border:0;border-radius:999px;background:#c45c3e;color:#fff;font-weight:700;cursor:pointer;">Continue to Flutterwave</button>'
+        . '</form><script>document.getElementById("cavemen-fw-pay").submit();</script></body></html>';
+    exit;
+}
+
 function cavemen_output_registration_ticket_pdf()
 {
     $txRef = '';
@@ -1453,7 +2751,14 @@ function cavemen_output_registration_ticket_pdf()
         return;
     }
     $pdo = cavemen_pdo();
-    $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+    try {
+        $reg = cavemen_fetch_registration_by_txref($pdo, $txRef);
+    } catch (InvalidArgumentException $e) {
+        cavemen_json_response(404, [
+            'error' => 'Ticket not available yet. If you just paid, wait a few seconds and try again, or use the link in your email.',
+        ]);
+        return;
+    }
     if (!$reg || $reg['paymentStatus'] !== 'paid' || empty($reg['ticketCode'])) {
         cavemen_json_response(404, [
             'error' => 'Ticket not available yet. If you just paid, wait a few seconds and try again, or use the link in your email.',

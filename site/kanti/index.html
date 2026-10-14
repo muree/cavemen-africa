@@ -1,35 +1,22 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kanti marketplace · Cavemen Africa</title>
-    <meta
-      name="description"
-      content="Kanti is Cavemen Africa's online marketplace for crafts, merch, digital products, art, and more, checkout via Flutterwave."
-    >
-    <meta property="og:title" content="Kanti marketplace · Cavemen Africa">
-    <meta
-      property="og:description"
-      content="Kanti is Cavemen Africa's online marketplace for crafts, merch, digital products, art, and more, checkout via Flutterwave."
-    >
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://cavemen.africa/kanti/">
-    <meta name="twitter:card" content="summary_large_image">
+    <title>Kanti · Cavemen Africa</title>
+    <!-- Google Fonts Imports: Montserrat (primary body) & Cinzel Decorative (runic style headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    >
-    <link rel="icon" type="image/svg+xml" href="../assets/cavemen-icon.svg">
-    <link rel="apple-touch-icon" href="../assets/cavemen-icon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom Style definitions -->
+        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/site.css">
-  </head>
-  <body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="site-shell">
-      <header class="site-header">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
         <div class="container site-header__inner">
           <a class="brand-mark" href="../">
             <img class="brand-logo" src="../assets/cavemen-icon.svg" alt="Cavemen Africa">
@@ -40,84 +27,158 @@
             <a data-nav-link href="../dahk-seasons/">DAHK</a>
             <a data-nav-link href="../kanti/">Kanti</a>
             <a data-nav-link href="../articles/">Journal</a>
+            <a data-nav-link href="../tatsuniya/">Tatsuniya</a>
           </nav>
         </div>
       </header>
+    <main class="main-content">
 
-      <main id="main-content" class="site-main">
-        <section class="hero">
-          <div class="container hero__inner">
-            <p class="eyebrow">Marketplace</p>
-            <h1 class="page-title">Kanti</h1>
-            <p class="hero__lead">
-              Browse crafts, merch, digital releases, and art from the Cavemen Africa
-              circle. Each piece links out to a Flutterwave payment page managed by the
-              collective.
-            </p>
-          </div>
-        </section>
-
-        <section class="section section--tight">
-          <div class="container">
-            <div class="pill-row" data-kanti-categories aria-label="Product categories"></div>
-          </div>
-        </section>
-
-        <section class="section" style="padding-top: 0;">
-          <div class="container">
-            <div data-kanti-products></div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__top">
-          <div class="site-footer__grid">
-            <section class="site-footer__brand" aria-label="Cavemen Africa">
-              <a class="brand-mark" href="../">
-                <img class="brand-logo" src="../assets/cavemen-icon.svg" alt="Cavemen Africa">
-              </a>
-              <p class="body-copy">Studio of Studios</p>
-              <p class="body-copy">Owned and operated by CAVEMEN IMPACT SOLUTIONS LTD.</p>
-            </section>
-            <nav class="site-footer__col" aria-label="Explore">
-              <h4 class="site-footer__heading">Explore</h4>
-              <ul class="site-footer__list">
-                <li><a href="../">Home</a></li>
-                <li><a href="../asali/">Asali Poetry Sessions</a></li>
-                <li><a href="../dahk-seasons/">DAHK</a></li>
-                <li><a href="../articles/">Journal</a></li>
-              </ul>
-            </nav>
-            <section class="site-footer__col">
-              <h4 class="site-footer__heading">Contact</h4>
-              <ul class="site-footer__list">
-                <li><a href="tel:+2349134434065">09134434065</a></li>
-                <li><a href="mailto:info@cavemen.africa">info@cavemen.africa</a></li>
-              </ul>
-              <p class="site-footer__address">
-                No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria
-              </p>
-            </section>
-            <section class="site-footer__col">
-              <h4 class="site-footer__heading">Social</h4>
-              <ul class="site-footer__socials">
-                <li><a href="https://www.facebook.com/share/16CNzBvkPs/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-                <li><a href="https://x.com/Cavemenafrica" target="_blank" rel="noopener noreferrer">X</a></li>
-                <li><a href="https://www.instagram.com/cavemenafrica" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-                <li><a href="https://whatsapp.com/channel/0029Vb71e85KgsNyR43vd61J" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-                <li><a href="https://youtube.com/@cavemenafrica?si=_KkfyOYYurXxESDz" target="_blank" rel="noopener noreferrer">YouTube</a></li>
-                <li><a href="https://tiktok.com/@cavemen.africa" target="_blank" rel="noopener noreferrer">TikTok</a></li>
-              </ul>
-            </section>
-          </div>
+<!-- HERO STAGE -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <img src="assets/images/hero.jpeg" alt="Cavemen Africa Artwork" class="hero-image">
+  
+    <div class="hero-content">
+        <span class="hero-sub">Welcome to Kanti</span>
+        <h1 class="hero-title">Kanti by Cavemen Africa</h1>
+        <p class="hero-desc">
+           Where the work, stories, and creations of the Cavemen Africa ecosystem find a home.
+        </p>
+        <div class="hero-buttons">
+            <a href="#categories" class="btn btn-primary">Browse Categories</a>
+            <a href="#about" class="btn btn-secondary">Our Story</a>
         </div>
-        <div class="container site-footer__bottom">
-          <p>&copy; <span data-current-year></span> Cavemen Africa. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
+</section>
+
+<!-- PHILOSOPHY / ABOUT SECTION -->
+<section id="about" class="container">
+    <div class="grid-philosophy">
+        <div>
+            <span class="label-cap">Kanti Definition</span>
+            <h2>What is Kanti?</h2>
+        </div>
+        <div class="about-text">
+          <p>
+    <strong>Kanti</strong> is the Hausa word for <em>shop</em> or <em>market</em> — a place where people gather to exchange or buy valuables.
+</p>
+
+<p>
+    At <strong>Cavemen Africa</strong>, we see Kanti as more than a store. It is the home for the things we create, preserve, and share with the world.
+</p>
+
+<p>
+    Kanti exists to house the creations that emerge from the <strong>Cavemen Africa ecosystem</strong>. It is where our ideas take physical form and become accessible to the people they were made for.
+</p>
+
+<p>
+    Some of the things found in Kanti may tell stories. Others may preserve memories, celebrate culture, encourage reflection, or simply bring beauty into everyday life. What connects them is intention. Every item housed here is part of a larger effort to document experiences, preserve cultural records, support creative work, and build sustainable pathways for African creators.
+</p>
+
+<p>
+    In its simplest form, <strong>Kanti</strong> is a shop.
+</p>
+
+<p>
+    In practice, it is a living archive of the <strong>work, stories, and creations</strong> of the Cavemen Africa ecosystem.
+</p>
+        </div>
+    </div>
+
+
+</section>
+  
+
+<!-- PRODUCT CATEGORIES -->
+<section id="categories" class="container">
+    <div class="section-intro-center">
+        <span class="label-cap">Curated Shelves</span>
+        <h2>Kanti Products</h2>
+        <p>Explore full emotional journeys, curated seasons, or handcrafted garments below.</p>
+    </div>
+
+    <div class="products-grid">
+        <!-- 1. DAHK BOOK -->
+        <div class="product-card">
+            <div class="product-img-box">
+                <img src="assets/images/book.jpeg" alt="Diary of a Heartbreak Kid Book cover">
+                <span class="badge-overlay">DAHK Book</span>
+            </div>
+            <div class="product-details">
+                <div>
+                    <span class="cat-num"> 01</span>
+                    <h3>Diary of a Heartbreak Kid</h3>
+                    <p>A narrative poetry anthology written over fifteen years by Salamatu Adamu. Moving through seven chapters of heartbreak, growth, and quiet resolution.</p>
+                </div>
+                <a href="dahk-book/" class="btn btn-primary" style="text-align:center;">Poetry & Excerpts</a>
+            </div>
+        </div>
+
+        <!-- 2. DAHK VIALS (SCENTS) -->
+        <div class="product-card">
+            <div class="product-img-box">
+                <img src="assets/images/vial.jpeg" alt="DAHK Seasons Scent Oils set">
+                <span class="badge-overlay">7 Scent</span>
+            </div>
+            <div class="product-details">
+                <div>
+                    <span class="cat-num"> 02</span>
+                    <h3>DAHK Vials</h3>
+                    <p>Seven raw, hand-blended perfume oil formulas representing the emotional chapters of the book. Blended in collaboration with Scents Paradise.</p>
+                </div>
+                <a href="dahk-vials/" class="btn btn-primary" style="text-align:center;">Explore Scents</a>
+            </div>
+        </div>
+
+        <!-- 3. WURI CLOTHING (COMING SOON) -->
+        <div class="product-card">
+            <div class="product-img-box" style="background:linear-gradient(160deg,#844123,#2B2B2B);">
+                <span class="badge-overlay">Coming Soon</span>
+            </div>
+            <div class="product-details">
+                <div>
+                    <span class="cat-num"> 03</span>
+                    <h3>Wuri by Cavemen</h3>
+                    <p>Grounded, comfortable clothes that respect Northern design. Crafted with organic cottons, natural linens, and warm earth tones for simple, modern daily life.</p>
+                </div>
+                <a href="wuri/" class="btn btn-secondary" style="text-align:center;">Preview Lookbook</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+    </main> <!-- End main-content -->
+    
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-column col-span-2">
+                <h3 class="footer-brand">KANTI BY CAVEMEN AFRICA</h3>
+                <p class="footer-desc">
+        Kanti is the Hausa word for a shop or market where people gather to exchange or buy valuables. 
+        At Cavemen Africa, it is more than a store — it is the home for the things we create, preserve, and share. 
+        It houses the creations of the Cavemen Africa ecosystem, where ideas become physical and accessible to people.
+         In its simplest form, it is a shop; in practice, it is a living archive of our work, stories, and creations.
+                </p>
+                <p class="footer-meta">Kanti is the Hausa word for “shop” - a place of exchange</p>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-heading">COLLECTIONS</h4>
+                <ul class="footer-links">
+                    <li><a href="dahk-book/">Diary of a Heartbreak Kid (Book)</a></li>
+                    <li><a href="dahk-vials/">DAHK Vials (Scents)</a></li>
+                    <li><a href="wuri/">Wuri by Cavemen </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Cavemen Africa. Developed for Kanti </p>
+            <div class="bottom-badges">
+                <span>KANTI v2.0</span>
+            </div>
+        </div>
+    </footer>
+   <script src="assets/js/scripts.js"></script>
     <script src="../scripts/site.js"></script>
-    <script src="../scripts/kanti.js"></script>
-  </body>
+</body>
 </html>

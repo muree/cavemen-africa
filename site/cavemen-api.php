@@ -7,6 +7,9 @@
  * Usage (same methods and bodies as the scripts in api/):
  *   POST /cavemen-api.php?route=dahk-registrations          (JSON body)
  *   POST /cavemen-api.php?route=asali-registrations       (JSON body)
+ *   POST /cavemen-api.php?route=tatsuniya-registrations   (JSON body)
+ *   POST /cavemen-api.php?route=kanti-orders              (JSON body)
+ *   GET  /cavemen-api.php?route=hosted-pay&tx_ref=…       (Flutterwave HTML checkout)
  *   GET  /cavemen-api.php?route=dahk-payment-status&tx_ref=…
  *   GET  /cavemen-api.php?route=products                  (&category= optional)
  *   GET  /cavemen-api.php?route=health
@@ -31,6 +34,11 @@ $map = [
     'dahk-registrations' => __DIR__ . '/api/dahk-registrations.php',
     'dahk-payment-status' => __DIR__ . '/api/dahk-payment-status.php',
     'dahk-ticket-pdf' => __DIR__ . '/api/dahk-ticket-pdf.php',
+    'tatsuniya-registrations' => __DIR__ . '/api/tatsuniya-registrations.php',
+    'tatsuniya-payment-status' => __DIR__ . '/api/tatsuniya-payment-status.php',
+    'kanti-orders' => __DIR__ . '/api/kanti-orders.php',
+    'kanti-payment-status' => __DIR__ . '/api/kanti-payment-status.php',
+    'hosted-pay' => __DIR__ . '/api/hosted-pay.php',
     'ticket-preview' => __DIR__ . '/api/ticket-preview.php',
     'flutterwave-webhook' => __DIR__ . '/api/webhooks/flutterwave.php',
 ];

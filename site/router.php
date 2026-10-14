@@ -32,6 +32,16 @@ $map = [
     '/api/dahk-ticket-pdf.php' => __DIR__ . '/api/dahk-ticket-pdf.php',
     '/api/ticket-preview' => __DIR__ . '/api/ticket-preview.php',
     '/api/ticket-preview.php' => __DIR__ . '/api/ticket-preview.php',
+    '/api/tatsuniya-registrations' => __DIR__ . '/api/tatsuniya-registrations.php',
+    '/api/tatsuniya-registrations.php' => __DIR__ . '/api/tatsuniya-registrations.php',
+    '/api/tatsuniya-payment-status' => __DIR__ . '/api/tatsuniya-payment-status.php',
+    '/api/tatsuniya-payment-status.php' => __DIR__ . '/api/tatsuniya-payment-status.php',
+    '/api/kanti-orders' => __DIR__ . '/api/kanti-orders.php',
+    '/api/kanti-orders.php' => __DIR__ . '/api/kanti-orders.php',
+    '/api/kanti-payment-status' => __DIR__ . '/api/kanti-payment-status.php',
+    '/api/kanti-payment-status.php' => __DIR__ . '/api/kanti-payment-status.php',
+    '/api/hosted-pay' => __DIR__ . '/api/hosted-pay.php',
+    '/api/hosted-pay.php' => __DIR__ . '/api/hosted-pay.php',
     '/api/webhooks/flutterwave' => __DIR__ . '/api/webhooks/flutterwave.php',
 ];
 

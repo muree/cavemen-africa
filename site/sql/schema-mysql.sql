@@ -55,3 +55,49 @@ CREATE TABLE IF NOT EXISTS dahk_seasons_registrations (
   KEY idx_dahk_tx_ref (tx_ref),
   KEY idx_dahk_email (email(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS tatsuniya_registrations (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  child_name VARCHAR(255) NOT NULL,
+  child_age TINYINT UNSIGNED NOT NULL,
+  child_school VARCHAR(255) NULL,
+  parent_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  discovery VARCHAR(512) NOT NULL,
+  medical TEXT NULL,
+  notes TEXT NULL,
+  ticket_price_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  payment_status VARCHAR(24) NOT NULL DEFAULT 'pending',
+  tx_ref VARCHAR(128) NULL,
+  ticket_code VARCHAR(64) NULL,
+  flutterwave_transaction_id VARCHAR(128) NULL,
+  ticket_email_sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_tats_tx_ref (tx_ref),
+  KEY idx_tats_email (email(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS kanti_orders (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  address VARCHAR(512) NOT NULL,
+  city VARCHAR(128) NOT NULL,
+  state VARCHAR(128) NOT NULL,
+  product_type VARCHAR(64) NOT NULL,
+  selected_scent VARCHAR(64) NULL,
+  product_title VARCHAR(512) NOT NULL,
+  quantity INT UNSIGNED NOT NULL DEFAULT 1,
+  unit_price_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  total_naira INT UNSIGNED NOT NULL DEFAULT 0,
+  notes TEXT NULL,
+  payment_status VARCHAR(24) NOT NULL DEFAULT 'pending',
+  tx_ref VARCHAR(128) NULL,
+  flutterwave_transaction_id VARCHAR(128) NULL,
+  confirmation_email_sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_kanti_tx_ref (tx_ref),
+  KEY idx_kanti_email (email(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
