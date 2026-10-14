@@ -7,6 +7,7 @@
  * Usage (same methods and bodies as the scripts in api/):
  *   POST /cavemen-api.php?route=dahk-registrations          (JSON body)
  *   POST /cavemen-api.php?route=asali-registrations       (JSON body)
+ *   POST /cavemen-api.php?route=asali-campus-registrations (JSON body)
  *   POST /cavemen-api.php?route=tatsuniya-registrations   (JSON body)
  *   POST /cavemen-api.php?route=kanti-orders              (JSON body)
  *   GET  /cavemen-api.php?route=hosted-pay&tx_ref=…       (Flutterwave HTML checkout)
@@ -29,6 +30,7 @@ $map = [
     'health' => __DIR__ . '/api/health.php',
     'products' => __DIR__ . '/api/products.php',
     'asali-registrations' => __DIR__ . '/api/asali-registrations.php',
+    'asali-campus-registrations' => __DIR__ . '/api/asali-campus-registrations.php',
     'asali-payment-status' => __DIR__ . '/api/asali-payment-status.php',
     'asali-ticket-pdf' => __DIR__ . '/api/asali-ticket-pdf.php',
     'dahk-registrations' => __DIR__ . '/api/dahk-registrations.php',

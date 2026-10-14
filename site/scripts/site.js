@@ -53,3 +53,61 @@ for (const link of navLinks) {
     link.setAttribute("aria-current", "page");
   }
 }
+
+window.CAVEMEN_NIGERIA_STATES = [
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara",
+  "F.C.T.",
+];
+
+document.querySelectorAll("select[data-nigeria-state]").forEach((select) => {
+  const current = select.value;
+  const hasStates = Array.from(select.options).some((option) =>
+    window.CAVEMEN_NIGERIA_STATES.indexOf(option.value) !== -1
+  );
+  if (!hasStates) {
+    window.CAVEMEN_NIGERIA_STATES.forEach((state) => {
+      const option = document.createElement("option");
+      option.value = state;
+      option.textContent = state;
+      select.appendChild(option);
+    });
+  }
+  if (current) {
+    select.value = current;
+  }
+});

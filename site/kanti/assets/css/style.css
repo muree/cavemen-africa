@@ -615,6 +615,11 @@ button {
     box-shadow: 0 0 0 3px rgba(132, 65, 35, 0.05);
 }
 
+select.form-control {
+    cursor: pointer;
+    appearance: auto;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;

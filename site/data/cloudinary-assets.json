@@ -1,6 +1,6 @@
 {
     "cloud": "kqhxqms3",
-    "uploadedAt": "2026-10-14T08:28:42+00:00",
+    "uploadedAt": "2026-10-14T10:54:06+00:00",
     "assets": {
         "assets/Logo-no-bg.PNG": {
             "publicId": "cavemen-africa/assets/logo-no-bg",
@@ -96,6 +96,11 @@
             "publicId": "cavemen-africa/kanti/wilt",
             "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966553/cavemen-africa/kanti/wilt.jpg",
             "bytes": 76084
+        },
+        "assets/asaliunimaid.jpeg": {
+            "publicId": "cavemen-africa/assets/asali-unimaid",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791975251/cavemen-africa/assets/asali-unimaid.jpg",
+            "bytes": 236855
         }
     }
 }

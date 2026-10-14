@@ -2,7 +2,7 @@
 
 /**
  * Shared PHP API (cPanel): MySQL (when MYSQL_* is set) or SQLite, Flutterwave, ticket email.
- * Endpoints: health, products, asali-registrations, dahk-registrations, webhooks/flutterwave
+ * Endpoints: health, products, asali-registrations, asali-campus-registrations, dahk-registrations, webhooks/flutterwave
  */
 
 if (!defined('CAVEMEN_API_BOOTSTRAP')) {
@@ -404,6 +404,20 @@ CREATE TABLE IF NOT EXISTS kanti_orders (
   KEY idx_kanti_email (email(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ');
+    $pdo->exec('
+CREATE TABLE IF NOT EXISTS asali_campus_registrations (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(64) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  gender VARCHAR(64) NOT NULL,
+  discovery VARCHAR(512) NOT NULL,
+  notes TEXT NULL,
+  campus VARCHAR(128) NOT NULL DEFAULT \'unimaid\',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_asali_campus_email (email(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+');
 }
 
 function cavemen_init_db_sqlite(PDO $pdo)
@@ -490,6 +504,18 @@ function cavemen_init_db_sqlite(PDO $pdo)
     tx_ref TEXT,
     flutterwave_transaction_id TEXT,
     confirmation_email_sent_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS asali_campus_registrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    discovery TEXT NOT NULL,
+    notes TEXT,
+    campus TEXT NOT NULL DEFAULT \'unimaid\',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 ');
@@ -617,6 +643,38 @@ function cavemen_validate_registration($payload)
     ];
 }
 
+function cavemen_validate_asali_campus_registration($payload)
+{
+    if (!is_array($payload)) {
+        $payload = [];
+    }
+    $fullName = trim((string) ($payload['fullName'] ?? ''));
+    $phone = trim((string) ($payload['phone'] ?? ''));
+    $email = trim((string) ($payload['email'] ?? ''));
+    $gender = trim((string) ($payload['gender'] ?? ''));
+    $discovery = trim((string) ($payload['discovery'] ?? ''));
+    $notes = cavemen_normalize_optional($payload['notes'] ?? '');
+
+    if ($fullName === '' || $phone === '' || $email === '' || $gender === '' || $discovery === '') {
+        return ['error' => 'Please complete all required fields.'];
+    }
+    if (strpos($email, '@') === false) {
+        return ['error' => 'Please enter a valid email address.'];
+    }
+
+    return [
+        'data' => [
+            'fullName' => $fullName,
+            'phone' => $phone,
+            'email' => $email,
+            'gender' => $gender,
+            'discovery' => $discovery,
+            'notes' => $notes,
+            'campus' => 'unimaid',
+        ],
+    ];
+}
+
 function cavemen_validate_dahk_registration($payload)
 {
     if (!is_array($payload)) {
@@ -697,6 +755,49 @@ function cavemen_validate_tatsuniya_registration($payload)
     ];
 }
 
+function cavemen_nigeria_states()
+{
+    return [
+        'Abia',
+        'Adamawa',
+        'Akwa Ibom',
+        'Anambra',
+        'Bauchi',
+        'Bayelsa',
+        'Benue',
+        'Borno',
+        'Cross River',
+        'Delta',
+        'Ebonyi',
+        'Edo',
+        'Ekiti',
+        'Enugu',
+        'Gombe',
+        'Imo',
+        'Jigawa',
+        'Kaduna',
+        'Kano',
+        'Katsina',
+        'Kebbi',
+        'Kogi',
+        'Kwara',
+        'Lagos',
+        'Nasarawa',
+        'Niger',
+        'Ogun',
+        'Ondo',
+        'Osun',
+        'Oyo',
+        'Plateau',
+        'Rivers',
+        'Sokoto',
+        'Taraba',
+        'Yobe',
+        'Zamfara',
+        'F.C.T.',
+    ];
+}
+
 function cavemen_validate_kanti_order($payload)
 {
     if (!is_array($payload)) {
@@ -715,6 +816,9 @@ function cavemen_validate_kanti_order($payload)
 
     if ($fullName === '' || $phone === '' || $email === '' || $address === '' || $city === '' || $state === '' || $productType === '') {
         return ['error' => 'Please complete all required fields.'];
+    }
+    if (!in_array($state, cavemen_nigeria_states(), true)) {
+        return ['error' => 'Please select a valid Nigerian state or F.C.T.'];
     }
     if (strpos($email, '@') === false) {
         return ['error' => 'Please enter a valid email address.'];
@@ -1769,6 +1873,64 @@ function cavemen_handle_api_asali_registrations_post()
         ]);
     } catch (Throwable $e) {
         error_log('[cavemen] Asali registration error: ' . $e->getMessage());
+        cavemen_json_response(500, [
+            'error' => 'Registration could not be completed. Please try again in a moment or contact info@cavemen.africa.',
+        ]);
+    }
+}
+
+function cavemen_handle_api_asali_campus_registrations_post()
+{
+    try {
+        $pdo = cavemen_pdo();
+        try {
+            $raw = cavemen_read_request_body(65536);
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'Payload too large') {
+                cavemen_json_response(413, ['error' => 'Request body too large.']);
+                return;
+            }
+            error_log('[cavemen] Asali campus registration request body: ' . $e->getMessage());
+            cavemen_json_response(400, ['error' => 'Could not read the registration request. Please try again.']);
+            return;
+        }
+        $payload = json_decode($raw ?: '[]', true);
+        if (!is_array($payload)) {
+            cavemen_json_response(400, ['error' => 'Invalid JSON request body.']);
+            return;
+        }
+        $validation = cavemen_validate_asali_campus_registration($payload);
+        if (isset($validation['error'])) {
+            cavemen_json_response(400, ['error' => $validation['error']]);
+            return;
+        }
+        $data = $validation['data'];
+
+        $ins = $pdo->prepare('INSERT INTO asali_campus_registrations (
+    full_name, phone, email, gender, discovery, notes, campus
+  ) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $ins->execute([
+            $data['fullName'],
+            $data['phone'],
+            $data['email'],
+            $data['gender'],
+            $data['discovery'],
+            $data['notes'],
+            $data['campus'],
+        ]);
+        $registrationId = (int) $pdo->lastInsertId();
+        cavemen_json_response(201, [
+            'ok' => true,
+            'registrationId' => $registrationId,
+            'message' => 'Registration received successfully.',
+        ]);
+    } catch (PDOException $e) {
+        error_log('[cavemen] Asali campus registration PDO error: ' . $e->getMessage());
+        cavemen_json_response(503, [
+            'error' => 'Registration could not be saved. The database may be misconfigured (check MYSQL_* in .env and cPanel MySQL user privileges).',
+        ]);
+    } catch (Throwable $e) {
+        error_log('[cavemen] Asali campus registration error: ' . $e->getMessage());
         cavemen_json_response(500, [
             'error' => 'Registration could not be completed. Please try again in a moment or contact info@cavemen.africa.',
         ]);

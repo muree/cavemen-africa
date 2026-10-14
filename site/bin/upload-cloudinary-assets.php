@@ -103,6 +103,7 @@ if (is_readable($outFile)) {
 $files = [
     $root . '/assets/Logo-no-bg.PNG' => 'cavemen-africa/assets/logo-no-bg',
     $root . '/assets/asali-registration-banner.png' => 'cavemen-africa/assets/asali-registration-banner',
+    $root . '/assets/asaliunimaid.jpeg' => 'cavemen-africa/assets/asali-unimaid',
     $root . '/assets/cavemen-favicon.png' => 'cavemen-africa/assets/cavemen-favicon',
     $root . '/assets/cavemen-icon.svg' => 'cavemen-africa/assets/cavemen-icon',
     $root . '/assets/cavemen-logo.png' => 'cavemen-africa/assets/cavemen-logo',
