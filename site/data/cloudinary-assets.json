@@ -1,0 +1,101 @@
+{
+    "cloud": "kqhxqms3",
+    "uploadedAt": "2026-10-14T08:28:42+00:00",
+    "assets": {
+        "assets/Logo-no-bg.PNG": {
+            "publicId": "cavemen-africa/assets/logo-no-bg",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966525/cavemen-africa/assets/logo-no-bg.png",
+            "bytes": 249731
+        },
+        "assets/asali-registration-banner.png": {
+            "publicId": "cavemen-africa/assets/asali-registration-banner",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966527/cavemen-africa/assets/asali-registration-banner.jpg",
+            "bytes": 58815
+        },
+        "assets/cavemen-favicon.png": {
+            "publicId": "cavemen-africa/assets/cavemen-favicon",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966528/cavemen-africa/assets/cavemen-favicon.jpg",
+            "bytes": 17283
+        },
+        "assets/cavemen-icon.svg": {
+            "publicId": "cavemen-africa/assets/cavemen-icon",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966529/cavemen-africa/assets/cavemen-icon.svg",
+            "bytes": 534
+        },
+        "assets/cavemen-logo.png": {
+            "publicId": "cavemen-africa/assets/cavemen-logo",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966531/cavemen-africa/assets/cavemen-logo.jpg",
+            "bytes": 26356
+        },
+        "assets/cavemen-pattern.png": {
+            "publicId": "cavemen-africa/assets/cavemen-pattern",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966533/cavemen-africa/assets/cavemen-pattern.jpg",
+            "bytes": 168756
+        },
+        "assets/dahk-registration-banner.png": {
+            "publicId": "cavemen-africa/assets/dahk-registration-banner",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966534/cavemen-africa/assets/dahk-registration-banner.jpg",
+            "bytes": 71876
+        },
+        "assets/tatsuniyaimg.jpeg": {
+            "publicId": "cavemen-africa/assets/tatsuniya",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966536/cavemen-africa/assets/tatsuniya.jpg",
+            "bytes": 82409
+        },
+        "kanti/assets/images/ashes.jpeg": {
+            "publicId": "cavemen-africa/kanti/ashes",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966538/cavemen-africa/kanti/ashes.jpg",
+            "bytes": 102094
+        },
+        "kanti/assets/images/author.jpeg": {
+            "publicId": "cavemen-africa/kanti/author",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966539/cavemen-africa/kanti/author.jpg",
+            "bytes": 61775
+        },
+        "kanti/assets/images/bloom.jpeg": {
+            "publicId": "cavemen-africa/kanti/bloom",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966541/cavemen-africa/kanti/bloom.jpg",
+            "bytes": 76767
+        },
+        "kanti/assets/images/book.jpeg": {
+            "publicId": "cavemen-africa/kanti/book",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966542/cavemen-africa/kanti/book.jpg",
+            "bytes": 81140
+        },
+        "kanti/assets/images/dry.jpeg": {
+            "publicId": "cavemen-africa/kanti/dry",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966544/cavemen-africa/kanti/dry.jpg",
+            "bytes": 102613
+        },
+        "kanti/assets/images/epiphany.jpeg": {
+            "publicId": "cavemen-africa/kanti/epiphany",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966545/cavemen-africa/kanti/epiphany.jpg",
+            "bytes": 80484
+        },
+        "kanti/assets/images/hero.jpeg": {
+            "publicId": "cavemen-africa/kanti/hero",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966547/cavemen-africa/kanti/hero.jpg",
+            "bytes": 126471
+        },
+        "kanti/assets/images/roots.jpeg": {
+            "publicId": "cavemen-africa/kanti/roots",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966548/cavemen-africa/kanti/roots.jpg",
+            "bytes": 135928
+        },
+        "kanti/assets/images/thorns.jpeg": {
+            "publicId": "cavemen-africa/kanti/thorns",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966550/cavemen-africa/kanti/thorns.jpg",
+            "bytes": 103817
+        },
+        "kanti/assets/images/vial.jpeg": {
+            "publicId": "cavemen-africa/kanti/vial",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966551/cavemen-africa/kanti/vial.jpg",
+            "bytes": 161538
+        },
+        "kanti/assets/images/wilt.jpeg": {
+            "publicId": "cavemen-africa/kanti/wilt",
+            "secureUrl": "https://res.cloudinary.com/kqhxqms3/image/upload/v1791966553/cavemen-africa/kanti/wilt.jpg",
+            "bytes": 76084
+        }
+    }
+}

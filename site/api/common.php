@@ -122,6 +122,23 @@ function cavemen_public_base_url()
     return $scheme . '://' . $host;
 }
 
+function cavemen_cloudinary_asset_url($relativePath, $fallback = null)
+{
+    static $map = null;
+    if ($map === null) {
+        $file = cavemen_site_root() . '/data/cloudinary-assets.json';
+        $json = is_readable($file) ? json_decode((string) file_get_contents($file), true) : null;
+        $map = is_array($json) && isset($json['assets']) && is_array($json['assets']) ? $json['assets'] : [];
+    }
+    if (isset($map[$relativePath]['secureUrl']) && $map[$relativePath]['secureUrl'] !== '') {
+        return (string) $map[$relativePath]['secureUrl'];
+    }
+    if ($fallback !== null && $fallback !== '') {
+        return (string) $fallback;
+    }
+    return cavemen_public_base_url() . '/' . ltrim((string) $relativePath, '/');
+}
+
 /**
  * Ticket PDF URL for browsers. Uses cavemen-api.php (not /api/*) so it works when a host or CDN blocks /api/.
  */
@@ -188,12 +205,11 @@ function cavemen_event_flier_url($isDahk)
     if ($set) {
         return $set;
     }
-    $base = cavemen_public_base_url();
     if ($isDahk) {
-        return $base . '/assets/dahk-registration-banner.png';
+        return cavemen_cloudinary_asset_url('assets/dahk-registration-banner.png');
     }
 
-    return '';
+    return cavemen_cloudinary_asset_url('assets/asali-registration-banner.png', '');
 }
 
 function cavemen_format_ngn($amount)
@@ -1109,7 +1125,7 @@ function cavemen_flutterwave_init_payment($txRef, $amountNaira, $customer, $redi
         'customizations' => [
             'title' => $eventTitle,
             'description' => isset($flow['description']) ? (string) $flow['description'] : 'Payment — Cavemen Africa',
-            'logo' => $publicBase . '/assets/cavemen-icon.svg',
+            'logo' => cavemen_cloudinary_asset_url('assets/cavemen-icon.svg', $publicBase . '/assets/cavemen-icon.svg'),
         ],
         'meta' => cavemen_flutterwave_meta($metaEvent, $registrationId, $attendanceType, $customer),
     ];
@@ -2713,7 +2729,7 @@ function cavemen_handle_hosted_pay()
     $e = function ($value) {
         return htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     };
-    $logo = cavemen_public_base_url() . '/assets/cavemen-icon.svg';
+    $logo = cavemen_cloudinary_asset_url('assets/cavemen-icon.svg');
     header('Content-Type: text/html; charset=utf-8');
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pay · '
         . $e($ctx['title']) . '</title></head><body style="font-family:Georgia,serif;background:#f6f1e8;color:#1c1915;padding:3rem 1.5rem;text-align:center;">'

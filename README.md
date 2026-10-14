@@ -68,7 +68,21 @@ FLUTTERWAVE_SECRET_HASH=your-webhook-secret
 FLUTTERWAVE_ENVIRONMENT=live
 ```
 
-Those are the three values from **Settings → API Keys → v4 Live** (Client ID, Client Secret, Encryption Key). The site exchanges Client ID + Client Secret for an OAuth token, then opens a Flutterwave hosted checkout session. The encryption key stays on the server only. `FLUTTERWAVE_SECRET_HASH` is a secret you choose for webhooks (HMAC `flutterwave-signature`), not the encryption key — set the webhook URL to `https://your-domain/cavemen-api.php?route=flutterwave-webhook`. Optional v3 `FLUTTERWAVE_SECRET_KEY` / `FLUTTERWAVE_PUBLIC_KEY` remain as a fallback. Dashboard links in `site/data/*-payment-links.json` are last-resort. After `charge.completed`, the webhook verifies the charge and emails a ticket (Asali/DAHK) or an order/workshop confirmation (Kanti/Tatsuniya). Prefer **Resend**:
+Those are the three values from **Settings → API Keys → v4 Live** (Client ID, Client Secret, Encryption Key). The site exchanges Client ID + Client Secret for an OAuth token, then opens a Flutterwave hosted checkout session. The encryption key stays on the server only. `FLUTTERWAVE_SECRET_HASH` is a secret you choose for webhooks (HMAC `flutterwave-signature`), not the encryption key — set the webhook URL to `https://your-domain/cavemen-api.php?route=flutterwave-webhook`. Optional v3 `FLUTTERWAVE_SECRET_KEY` / `FLUTTERWAVE_PUBLIC_KEY` remain as a fallback. Dashboard links in `site/data/*-payment-links.json` are last-resort. After `charge.completed`, the webhook verifies the charge and emails a ticket (Asali/DAHK) or an order/workshop confirmation (Kanti/Tatsuniya).
+
+Journal photos already load from Cloudinary (`kqhxqms3`). To upload the rest of the site images (logo, banners, Kanti shop photos):
+
+```env
+CLOUDINARY_CLOUD_NAME=kqhxqms3
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+```
+
+```bash
+cd site && php bin/upload-cloudinary-assets.php
+```
+
+Prefer **Resend**:
 
 ```env
 RESEND_API_KEY=re_xxxxxxxx
@@ -95,7 +109,7 @@ ASALI_EVENT_WHEN=Saturday 12 September 2026 · 6:00 PM
 ASALI_VENUE_LINE=No 2 Guda Abdullahi Road, Farm Center, Kano, Nigeria
 ASALI_EVENT_FLIER_URL=https://cavemen.africa/path/to-asali-flier.jpg
 DAHK_SEASONS_EVENT_WHEN=Sunday 10 May 2026 · 3:00 PM – 6:00 PM
-DAHK_EVENT_FLIER_URL=https://cavemen.africa/assets/dahk-registration-banner.png
+DAHK_EVENT_FLIER_URL=https://res.cloudinary.com/kqhxqms3/image/upload/cavemen-africa/assets/dahk-registration-banner.jpg
 ```
 
 If the site is deployed in a **subdirectory** (e.g. `https://example.com/cavemen/`), set before `site.js` in your HTML:
